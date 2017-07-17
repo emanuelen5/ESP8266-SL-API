@@ -18,7 +18,7 @@ IDIR=
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -o $(EXE) $(OBJS)
 
-$(OBJS): $(DEPS)
+$(OBJS): $(DEPS) $(SRCS)
 	$(CC) $(CFLAGS) -o $@ -c $(SRCS)
 
 
