@@ -1,15 +1,22 @@
 CC=gcc
 CFLAGS=-Wall -std=c99
 
+ifeq ($(OS),Windows_NT)
+	EXE_EXT=.exe
+else
+	EXE_EXT=.out
+endif
+
 # Regular compilation
-OUTPUT=xml_parser
-SRCS=$(OUTPUT).c
-DEPS=$(SRCS:.c=.h)
-OBJS=$(SRCS:.c=.o)
+NAME=xml_parser
+EXE=$(NAME)$(EXE_EXT)
+SRCS=$(NAME).c
+DEPS=$(NAME).h
+OBJS=$(NAME).o
 IDIR=
 
-$(OUTPUT): $(OBJS)
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(OBJS)
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJS)
 
 $(OBJS): $(DEPS)
 	$(CC) $(CFLAGS) -o $@ -c $(SRCS)
@@ -17,23 +24,25 @@ $(OBJS): $(DEPS)
 
 
 # Compilation of tests
-TEST_OUTPUT=test_runner
-TEST_OBJS=test_xml_parser.o
-TEST_SRCS=$(TEST_OBJS:.o=.c)
+TEST_NAME=test_xml_parser
+TEST_EXE=test_runner$(EXE_EXT)
+TEST_OBJS=$(TEST_NAME).o
+TEST_SRCS=$(TEST_NAME).c
 UNITY=include/Unity/unity.c include/Unity_fixture/unity_fixture.c
 TEST_INCL=-I"include/Unity" -I"include/Unity_fixture"
 
-$(TEST_OUTPUT):  $(TEST_SRCS) $(UNITY) $(OBJS)
+$(TEST_EXE):  $(TEST_SRCS) $(UNITY) $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $< $(UNITY) $(TEST_INCL)
+	@$(MAKE) test
 
-test: $(TEST_OUTPUT)
+test: $(TEST_EXE)
 	@echo "Running tests"
 	@echo ""
-	./$(TEST_OUTPUT)
+	- ./$(TEST_EXE)
 
 # Miscellaneous
 .DEFAULT_GOAL=all
 .PHONY=all clean test
-all: $(OUTPUT) $(TEST_OUTPUT)
+all: $(EXE) $(TEST_EXE)
 clean:
-	@rm -vf $(OBJS) $(OUTPUT) $(TEST_OBJS) $(TEST_OUTPUT)
+	@rm -vf $(OBJS) $(EXE) $(TEST_OBJS) $(TEST_EXE)
