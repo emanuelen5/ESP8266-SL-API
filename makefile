@@ -7,42 +7,57 @@ else
 	EXE_EXT=.out
 endif
 
-# Regular compilation
-NAME=xml_parser
-EXE=$(NAME)$(EXE_EXT)
-SRCS=$(NAME).c
-DEPS=$(NAME).h
-OBJS=$(NAME).o
+# Library compilation
+DEV_EXE_NAME=xml_parser
+DEV_EXE=$(DEV_EXE_NAME)$(EXE_EXT)
+DEV_EXE_SRCS=$(DEV_EXE_NAME).c
+DEV_EXE_DEPS=$(DEV_EXE_NAME).h
+DEV_EXE_OBJS=$(DEV_EXE_NAME).o
 IDIR=
 
-$(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -o $(EXE) $(OBJS)
+$(DEV_EXE): $(DEV_EXE_OBJS)
+	$(CC) $(CFLAGS) -o $(DEV_EXE) $(DEV_EXE_OBJS)
 
-$(OBJS): $(DEPS) $(SRCS)
-	$(CC) $(CFLAGS) -o $@ -c $(SRCS)
+$(DEV_EXE_OBJS): $(DEV_EXE_DEPS) $(DEV_EXE_SRCS)
+	$(CC) $(CFLAGS) -o $@ -c $(DEV_EXE_SRCS)
 
+# Unity library
+UNITY_OBJ=unity.o
+UNITY_SRC=include/Unity/unity.c
+UNITY_INCL=-I"include/Unity"
+# Unity fixture library
+UNITY_FIXTURE_OBJ=unity_fixture.o
+UNITY_FIXTURE_SRC=include/Unity_fixture/unity_fixture.c
+UNITY_FIXTURE_INCL=$(UNITY_INCL) -I"include/Unity_fixture"
+# Test environment dependencies
+TDD_OBJS=$(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
+TDD_SRC=$(UNITY_SRC) $(UNITY_FIXTURE_SRC)
+TDD_INCL=$(UNITY_INCL) $(UNITY_FIXTURE_INCL) # Double inclusion, but what the hell
 
+$(UNITY_OBJ): $(UNITY_SRC)
+	$(CC) $(CFLAGS) -o $@ $^ $(UNITY_INCL) -c
 
-# Compilation of tests
-TEST_NAME=test_xml_parser
-TEST_EXE=test_runner$(EXE_EXT)
-TEST_OBJS=$(TEST_NAME).o
-TEST_SRCS=$(TEST_NAME).c
-UNITY=include/Unity/unity.c include/Unity_fixture/unity_fixture.c
-TEST_INCL=-I"include/Unity" -I"include/Unity_fixture"
+$(UNITY_FIXTURE_OBJ): $(UNITY_FIXTURE_SRC)
+	$(CC) $(CFLAGS) -o $@ $^ $(UNITY_FIXTURE_INCL) -c
 
-$(TEST_EXE):  $(TEST_SRCS) $(UNITY) $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $< $(UNITY) $(TEST_INCL)
-	@$(MAKE) test
+# Development tests
+DEV_TEST_NAME=test_xml_parser
+DEV_TEST_EXE=test_runner$(EXE_EXT)
+DEV_TEST_OBJS=$(DEV_TEST_NAME).o
+DEV_TEST_SRCS=$(DEV_TEST_NAME).c
 
-test: $(TEST_EXE)
+$(DEV_TEST_EXE):  $(DEV_TEST_SRCS) $(TDD_OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(TDD_INCL)
+	@$(MAKE) --no-print-directory test
+
+test: $(DEV_TEST_EXE)
 	@echo "Running tests"
 	@echo ""
-	- ./$(TEST_EXE)
+	- ./$(DEV_TEST_EXE)
 
 # Miscellaneous
 .DEFAULT_GOAL=all
 .PHONY=all clean test
-all: $(EXE) $(TEST_EXE)
+all: $(DEV_EXE) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
 clean:
-	@rm -vf $(OBJS) $(EXE) $(TEST_OBJS) $(TEST_EXE)
+	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
