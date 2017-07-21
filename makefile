@@ -7,20 +7,8 @@ else
 	EXE_EXT=.out
 endif
 
-# Library compilation
-DEV_EXE_NAME=xml_parser
-DEV_EXE=$(DEV_EXE_NAME)$(EXE_EXT)
-DEV_EXE_SRCS=$(DEV_EXE_NAME).c
-DEV_EXE_DEPS=$(DEV_EXE_NAME).h
-DEV_EXE_OBJS=$(DEV_EXE_NAME).o
-IDIR=
 
-$(DEV_EXE): $(DEV_EXE_OBJS)
-	$(CC) $(CFLAGS) -o $(DEV_EXE) $(DEV_EXE_OBJS)
-
-$(DEV_EXE_OBJS): $(DEV_EXE_DEPS) $(DEV_EXE_SRCS)
-	$(CC) $(CFLAGS) -o $@ -c $(DEV_EXE_SRCS)
-
+## Compilation of test dependencies ##
 # Unity library
 UNITY_OBJ=unity.o
 UNITY_SRC=include/Unity/unity.c
@@ -40,24 +28,54 @@ $(UNITY_OBJ): $(UNITY_SRC)
 $(UNITY_FIXTURE_OBJ): $(UNITY_FIXTURE_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(UNITY_FIXTURE_INCL) -c
 
-# Development tests
+
+## Library compilation ##
+XML_LIBRARY_NAME=xml_parser
+XML_LIBRARY_SRCS=$(XML_LIBRARY_NAME).c
+XML_LIBRARY_DEPS=$(XML_LIBRARY_NAME).h
+XML_LIBRARY_OBJS=$(XML_LIBRARY_NAME).o
+IDIR=
+
+$(XML_LIBRARY_OBJS): $(XML_LIBRARY_DEPS) $(XML_LIBRARY_SRCS)
+	$(CC) $(CFLAGS) -o $@ -c $(XML_LIBRARY_SRCS)
+
+
+## Development executable ##
+DEV_EXE_NAME=main
+DEV_EXE=$(DEV_EXE_NAME)$(EXE_EXT)
+DEV_EXE_SRCS=$(DEV_EXE_NAME).c
+# DEV_EXE_DEPS=$(DEV_EXE_NAME).h
+DEV_EXE_OBJS=$(DEV_EXE_NAME).o
+IDIR=
+
+$(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
+	$(CC) $(CFLAGS) -o $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
+
+$(DEV_EXE_OBJS): $(DEV_EXE_DEPS) $(DEV_EXE_SRCS)
+	$(CC) $(CFLAGS) -o $@ -c $(DEV_EXE_SRCS)
+
+
+## Development tests ##
 DEV_TEST_NAME=test_xml_parser
 DEV_TEST_EXE=test_runner$(EXE_EXT)
 DEV_TEST_OBJS=$(DEV_TEST_NAME).o
 DEV_TEST_SRCS=$(DEV_TEST_NAME).c
 
-$(DEV_TEST_EXE):  $(DEV_TEST_SRCS) $(TDD_OBJS)
+$(DEV_TEST_EXE):  $(DEV_TEST_SRCS) $(TDD_OBJS) $(XML_LIBRARY_OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(TDD_INCL)
 	@$(MAKE) --no-print-directory test
 
+
+## Run test ##
 test: $(DEV_TEST_EXE)
 	@echo "Running tests"
 	@echo ""
 	- ./$(DEV_TEST_EXE)
 
-# Miscellaneous
+
+## Miscellaneous ##
 .DEFAULT_GOAL=all
 .PHONY=all clean test
-all: $(DEV_EXE) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
+all: $(DEV_EXE) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(XML_LIBRARY_OBJS)
 clean:
-	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
+	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
