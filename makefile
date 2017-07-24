@@ -68,14 +68,24 @@ $(DEV_TEST_EXE):  $(DEV_TEST_SRCS) $(TDD_OBJS) $(XML_LIBRARY_OBJS)
 
 ## Run test ##
 test: $(DEV_TEST_EXE)
-	@echo "Running tests"
 	@echo ""
-	- ./$(DEV_TEST_EXE)
+	@echo "Running tests"
+	@- ./$(DEV_TEST_EXE)
+
+
+## Readme ##
+MARKDOWN=Markdown.pl
+README_OUT=readme.html
+$(README_OUT): readme.md
+	@echo ""
+	@echo "Generating readme"
+	$(MARKDOWN) $< > $@
 
 
 ## Miscellaneous ##
 .DEFAULT_GOAL=all
-.PHONY=all clean test
-all: $(DEV_EXE) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(XML_LIBRARY_OBJS)
+.PHONY=all clean test readme
+all: $(DEV_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(README_OUT)
 clean:
-	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
+	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(README_OUT)
+readme: $(README_OUT)
