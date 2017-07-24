@@ -17,7 +17,7 @@ UNITY_INCL=-I"include/Unity"
 UNITY_FIXTURE_OBJ=unity_fixture.o
 UNITY_FIXTURE_SRC=include/Unity_fixture/unity_fixture.c
 UNITY_FIXTURE_INCL=$(UNITY_INCL) -I"include/Unity_fixture"
-# Test environment dependencies
+# Test environment cumulative dependencies
 TDD_OBJS=$(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
 TDD_SRC=$(UNITY_SRC) $(UNITY_FIXTURE_SRC)
 TDD_INCL=$(UNITY_INCL) $(UNITY_FIXTURE_INCL) # Double inclusion, but what the hell
@@ -34,7 +34,7 @@ XML_LIBRARY_NAME=xml_parser
 XML_LIBRARY_SRCS=$(XML_LIBRARY_NAME).c
 XML_LIBRARY_DEPS=$(XML_LIBRARY_NAME).h
 XML_LIBRARY_OBJS=$(XML_LIBRARY_NAME).o
-IDIR=
+XML_LIBRARY_INCL=
 
 $(XML_LIBRARY_OBJS): $(XML_LIBRARY_DEPS) $(XML_LIBRARY_SRCS)
 	$(CC) $(CFLAGS) -o $@ -c $(XML_LIBRARY_SRCS)
@@ -46,7 +46,7 @@ DEV_EXE=$(DEV_EXE_NAME)$(EXE_EXT)
 DEV_EXE_SRCS=$(DEV_EXE_NAME).c
 # DEV_EXE_DEPS=$(DEV_EXE_NAME).h
 DEV_EXE_OBJS=$(DEV_EXE_NAME).o
-IDIR=
+DEV_EXE_INCL=
 
 $(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
 	$(CC) $(CFLAGS) -o $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
@@ -84,8 +84,14 @@ $(README_OUT): readme.md
 
 ## Miscellaneous ##
 .DEFAULT_GOAL=all
-.PHONY=all clean test readme
+.PHONY=all clean test readme arduino_verify arduino_upload
 all: $(DEV_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(README_OUT)
 clean:
 	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(README_OUT)
+	$(MAKE_ARDUINO) clean
 readme: $(README_OUT)
+
+# Submake for Arduino sketch
+MAKE_ARDUINO=$(MAKE) -C arduino_app -f arduino.mk
+arduino_verify: $(XML_LIBRARY_OBJS) $(TDD_OBJS)
+	$(MAKE_ARDUINO) verify
