@@ -2,67 +2,56 @@ CC=gcc
 CFLAGS=-Wall -std=c99
 
 ifeq ($(OS),Windows_NT)
-	EXE_EXT=.exe
+	EXE_EXT=exe
 else
-	EXE_EXT=.out
+	EXE_EXT=out
 endif
+
+# Paths must be specified before they are resolved: Bug?
+BUILD_PATH=output
+INCLUDE_PATH=include
+
+## General compilation of dependencies unless further specified ##
+# %.o: 
+	# Fix: Otherwise, test.o etc. matches the rule below
+	# @echo "Strange, $@ triggered this rule"
+$(BUILD_PATH)/%.o: %.c
+	@echo "Compiling dependency"
+	$(CC) $(CFLAGS) -o $@ $< $(TDD_INCL) -c
 
 
 ## Compilation of test dependencies ##
-# Unity library
-UNITY_OBJ=unity.o
-UNITY_SRC=include/Unity/unity.c
-UNITY_INCL=-I"include/Unity"
-# Unity fixture library
-UNITY_FIXTURE_OBJ=unity_fixture.o
-UNITY_FIXTURE_SRC=include/Unity_fixture/unity_fixture.c
-UNITY_FIXTURE_INCL=$(UNITY_INCL) -I"include/Unity_fixture"
-# Test environment cumulative dependencies
-TDD_OBJS=$(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
-TDD_SRC=$(UNITY_SRC) $(UNITY_FIXTURE_SRC)
-TDD_INCL=$(UNITY_FIXTURE_INCL)
-
-$(UNITY_OBJ): $(UNITY_SRC)
-	$(CC) $(CFLAGS) -o $@ $^ $(UNITY_INCL) -c
-
-$(UNITY_FIXTURE_OBJ): $(UNITY_FIXTURE_SRC)
-	$(CC) $(CFLAGS) -o $@ $^ $(UNITY_FIXTURE_INCL) -c
-
-
-## Library compilation ##
-XML_LIBRARY_NAME=xml_parser
-XML_LIBRARY_SRCS=$(XML_LIBRARY_NAME).c
-XML_LIBRARY_DEPS=$(XML_LIBRARY_NAME).h
-XML_LIBRARY_OBJS=$(XML_LIBRARY_NAME).o
-XML_LIBRARY_INCL=
-
-$(XML_LIBRARY_OBJS): $(XML_LIBRARY_DEPS) $(XML_LIBRARY_SRCS)
-	$(CC) $(CFLAGS) -o $@ -c $(XML_LIBRARY_SRCS)
+TDD_OBJS=$(BUILD_PATH)/unity.o $(BUILD_PATH)/unity_fixture.o
+TDD_INCL=-I"include/unity" -I"include/unity_fixture"
+$(BUILD_PATH)/%.o: $(INCLUDE_PATH)/unity/%.c
+	@echo "Compiling Unity"
+	$(CC) $(CFLAGS) -o $@ $< $(TDD_INCL) -c
+$(BUILD_PATH)/%.o: $(INCLUDE_PATH)/unity_fixture/%.c $(BUILD_PATH)/unity.o
+	@echo "Compiling Unity fixture"
+	$(CC) $(CFLAGS) -o $@ $< $(TDD_INCL) -c
 
 
 ## Development executable ##
 DEV_EXE_NAME=main
-DEV_EXE=$(DEV_EXE_NAME)$(EXE_EXT)
-DEV_EXE_SRCS=$(DEV_EXE_NAME).c
-# DEV_EXE_DEPS=$(DEV_EXE_NAME).h
-DEV_EXE_OBJS=$(DEV_EXE_NAME).o
-DEV_EXE_INCL=
-
+DEV_EXE=$(BUILD_PATH)/$(DEV_EXE_NAME).$(EXE_EXT)
+DEV_EXE_OBJS=$(BUILD_PATH)/main.o
+XML_LIBRARY_OBJS=$(BUILD_PATH)/xml_parser.o
 $(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
-	$(CC) $(CFLAGS) -o $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
+	@echo ""
+	@echo "Linking main executable"
+	$(CC) $(CFLAGS) -o $@ $^
+	@echo ""
 
-$(DEV_EXE_OBJS): $(DEV_EXE_DEPS) $(DEV_EXE_SRCS)
-	$(CC) $(CFLAGS) -o $@ -c $(DEV_EXE_SRCS)
 
-
-## Development tests ##
-DEV_TEST_NAME=test_xml_parser
-DEV_TEST_EXE=test_runner$(EXE_EXT)
-DEV_TEST_OBJS=$(DEV_TEST_NAME).o
-DEV_TEST_SRCS=$(DEV_TEST_NAME).c
-
-$(DEV_TEST_EXE):  $(DEV_TEST_SRCS) $(TDD_OBJS) $(XML_LIBRARY_OBJS)
+## Development tests executable ##
+DEV_TEST_EXE=$(BUILD_PATH)/test_runner.$(EXE_EXT)
+DEVELOPMENT_OBJS=$(BUILD_PATH)/dev_test_suite.o $(BUILD_PATH)/test_xml_parser.o $(BUILD_PATH)/test_xml_parser_basic.o
+DEV_TEST_DEPS=$(TDD_OBJS) $(XML_LIBRARY_OBJS) $(DEVELOPMENT_OBJS)
+$(DEV_TEST_EXE): $(DEV_TEST_DEPS)
+	@echo ""
+	@echo "Linking development tests"
 	$(CC) $(CFLAGS) -o $@ $^ $(TDD_INCL)
+	@echo ""
 	@$(MAKE) --no-print-directory test
 
 
@@ -75,19 +64,21 @@ test: $(DEV_TEST_EXE)
 
 ## Readme ##
 MARKDOWN=Markdown.pl
-README_OUT=readme.html
+README_OUT=$(BUILD_PATH)/readme.html
 $(README_OUT): readme.md
 	@echo ""
 	@echo "Generating readme"
 	$(MARKDOWN) $< > $@
 
+$(BUILD_PATH):
+	@mkdir $(BUILD_PATH)
 
 ## Miscellaneous ##
 .DEFAULT_GOAL=all
 .PHONY=all clean test readme arduino_verify arduino_upload
-all: $(DEV_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(README_OUT)
+all: $(DEV_EXE) $(DEV_TEST_EXE) $(README_OUT)
 clean:
-	@rm -vf $(DEV_EXE) $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS) $(DEV_TEST_EXE) $(UNITY_OBJ) $(UNITY_FIXTURE_OBJ) $(README_OUT)
+	@rm -vf $(XML_LIBRARY_OBJS) $(DEV_TEST_DEPS) $(DEV_EXE_OBJS) $(README_OUT) $(DEV_EXE) $(DEV_TEST_EXE)
 	$(MAKE_ARDUINO) clean
 readme: $(README_OUT)
 

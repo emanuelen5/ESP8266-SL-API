@@ -7,6 +7,7 @@ typedef struct {
 } string_ptr_t;
 
 void initStringPtrT(string_ptr_t *spt, char *string);
+void zeroStringPtrT(string_ptr_t *spt);
 
 /**
  * Finds the outer boundary of a node (including the angle brackets). 

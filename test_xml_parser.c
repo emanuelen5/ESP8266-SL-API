@@ -66,30 +66,9 @@ void bufferFile(char *text_buffer, FILE *fh, char *fileName) {
   TEST_ASSERT_EQUAL_MESSAGE(0, nRead, msg);
 }
 
-TEST(OFFLINE_XML_FILES, initStringPtrT) {
-  string_ptr_t res;
-  initStringPtrT(&res, text_buffer_departure);
-  TEST_ASSERT_EQUAL(text_buffer_departure, res.string);
-  TEST_ASSERT_EQUAL(0, res.start);
-  TEST_ASSERT_EQUAL(6050, res.end);
-
-  initStringPtrT(&res, text_buffer_station);
-  TEST_ASSERT_EQUAL(text_buffer_station, res.string);
-  TEST_ASSERT_EQUAL(0, res.start);
-  TEST_ASSERT_EQUAL(6113, res.end);
-}
-
 TEST(OFFLINE_XML_FILES, CanReadFiles) {
   CALL_BUFFER_FILE(departure);
   CALL_BUFFER_FILE(station);
-}
-
-TEST(OFFLINE_XML_FILES, CanNotFindGibberish) {
-  int status;
-  string_ptr_t res;
-  initStringPtrT(&res, text_buffer_departure);
-  status = findNodeBoundary(&res, &res, "Gibberish");
-  TEST_ASSERT_EQUAL(-1, status);
 }
 
 TEST(OFFLINE_XML_FILES, CanFindStatusCode) {
@@ -112,15 +91,5 @@ TEST(OFFLINE_XML_FILES, CanFindStatusCode) {
 TEST_GROUP_RUNNER(OFFLINE_XML_FILES) {
   RUN_TEST_CASE(OFFLINE_XML_FILES, FilesArePresent);
   RUN_TEST_CASE(OFFLINE_XML_FILES, CanReadFiles);
-  RUN_TEST_CASE(OFFLINE_XML_FILES, initStringPtrT);
-  RUN_TEST_CASE(OFFLINE_XML_FILES, CanNotFindGibberish);
   RUN_TEST_CASE(OFFLINE_XML_FILES, CanFindStatusCode);
-}
-
-static void runAllTests() {
-  RUN_TEST_GROUP(OFFLINE_XML_FILES);
-}
-
-int main(int argc, const char *argv[]) {
-  return UnityMain(argc, argv, runAllTests);
 }
