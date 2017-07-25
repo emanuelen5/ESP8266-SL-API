@@ -3,7 +3,10 @@
 #include <stdio.h>
 
 #define MSG_LENGTH 100
+#define RESPONSE_MAX_LENGTH 7000
+char msg[MSG_LENGTH];
 FILE *fh_departure, *fh_station;
+char text_buffer_departure[RESPONSE_MAX_LENGTH], text_buffer_station[RESPONSE_MAX_LENGTH];
 
 TEST_GROUP(OFFLINE_XML_FILES);
 
@@ -17,17 +20,6 @@ static FILE *getRO_File(const char *filepath) {
   return file_handle;
 }
 
-/**
- * Wrapper for getRO_File with assertion
- * @param filepath Path to file
- */
-static void testCanOpenFile(const char *filepath) {
-  char msg[MSG_LENGTH];
-  sprintf(msg, "Could not open '%s'", filepath);
-  FILE *fh = getRO_File(filepath);
-  TEST_ASSERT_MESSAGE(fh, msg);
-}
-
 TEST_SETUP(OFFLINE_XML_FILES) {
   fh_departure = getRO_File("departure_lookup.xml");
   fh_station   = getRO_File("station_lookup.xml");
@@ -39,6 +31,16 @@ TEST_TEAR_DOWN(OFFLINE_XML_FILES) {
 }
 
 /**
+ * Wrapper for getRO_File with assertion
+ * @param filepath Path to file
+ */
+static void testCanOpenFile(const char *filepath) {
+  sprintf(msg, "Could not open '%s'", filepath);
+  FILE *fh = getRO_File(filepath);
+  TEST_ASSERT_MESSAGE(fh, msg);
+}
+
+/**
  * Test that all the offline files are present
  */
 TEST(OFFLINE_XML_FILES, FilesArePresent) {
@@ -46,8 +48,73 @@ TEST(OFFLINE_XML_FILES, FilesArePresent) {
   testCanOpenFile("station_lookup.xml");
 }
 
+/**
+ * Calls the function bufferFile with the expansion of an XML file name
+ * @param  NAME Name of an XML file
+ */
+#define CALL_BUFFER_FILE(NAME) bufferFile(text_buffer_##NAME, fh_##NAME, #NAME)
+
+void bufferFile(char *text_buffer, FILE *fh, char *fileName) {
+  size_t nRead;
+
+  nRead = fread((void *) text_buffer, sizeof(char), RESPONSE_MAX_LENGTH, fh);
+  sprintf(msg, "Could not read from %s", fileName);
+  TEST_ASSERT_MESSAGE(nRead > 0, msg);
+
+  nRead = fread((void *) text_buffer, sizeof(char), RESPONSE_MAX_LENGTH, fh);
+  sprintf(msg, "Buffer for %s is too small", fileName);
+  TEST_ASSERT_EQUAL_MESSAGE(0, nRead, msg);
+}
+
+TEST(OFFLINE_XML_FILES, initStringPtrT) {
+  string_ptr_t res;
+  initStringPtrT(&res, text_buffer_departure);
+  TEST_ASSERT_EQUAL(text_buffer_departure, res.string);
+  TEST_ASSERT_EQUAL(0, res.start);
+  TEST_ASSERT_EQUAL(6050, res.end);
+
+  initStringPtrT(&res, text_buffer_station);
+  TEST_ASSERT_EQUAL(text_buffer_station, res.string);
+  TEST_ASSERT_EQUAL(0, res.start);
+  TEST_ASSERT_EQUAL(6113, res.end);
+}
+
+TEST(OFFLINE_XML_FILES, CanReadFiles) {
+  CALL_BUFFER_FILE(departure);
+  CALL_BUFFER_FILE(station);
+}
+
+TEST(OFFLINE_XML_FILES, CanNotFindGibberish) {
+  int status;
+  string_ptr_t res;
+  initStringPtrT(&res, text_buffer_departure);
+  status = findNodeBoundary(&res, &res, "Gibberish");
+  TEST_ASSERT_EQUAL(-1, status);
+}
+
+TEST(OFFLINE_XML_FILES, CanFindStatusCode) {
+  int status;
+  string_ptr_t res;
+
+  initStringPtrT(&res, text_buffer_departure);
+  status = findNodeBoundary(&res, &res, "StatusCode");
+  TEST_ASSERT_EQUAL(0, status);
+  TEST_ASSERT_EQUAL(121, res.start);
+  TEST_ASSERT_EQUAL(146, res.end);
+
+  initStringPtrT(&res, text_buffer_station);
+  status = findNodeBoundary(&res, &res, "StatusCode");
+  TEST_ASSERT_EQUAL(0, status);
+  TEST_ASSERT_EQUAL(121, res.start);
+  TEST_ASSERT_EQUAL(146, res.end);
+}
+
 TEST_GROUP_RUNNER(OFFLINE_XML_FILES) {
   RUN_TEST_CASE(OFFLINE_XML_FILES, FilesArePresent);
+  RUN_TEST_CASE(OFFLINE_XML_FILES, CanReadFiles);
+  RUN_TEST_CASE(OFFLINE_XML_FILES, initStringPtrT);
+  RUN_TEST_CASE(OFFLINE_XML_FILES, CanNotFindGibberish);
+  RUN_TEST_CASE(OFFLINE_XML_FILES, CanFindStatusCode);
 }
 
 static void runAllTests() {

@@ -20,7 +20,7 @@ UNITY_FIXTURE_INCL=$(UNITY_INCL) -I"include/Unity_fixture"
 # Test environment cumulative dependencies
 TDD_OBJS=$(UNITY_OBJ) $(UNITY_FIXTURE_OBJ)
 TDD_SRC=$(UNITY_SRC) $(UNITY_FIXTURE_SRC)
-TDD_INCL=$(UNITY_INCL) $(UNITY_FIXTURE_INCL) # Double inclusion, but what the hell
+TDD_INCL=$(UNITY_FIXTURE_INCL)
 
 $(UNITY_OBJ): $(UNITY_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(UNITY_INCL) -c
@@ -92,6 +92,6 @@ clean:
 readme: $(README_OUT)
 
 # Submake for Arduino sketch
-MAKE_ARDUINO=$(MAKE) -C arduino_app -f arduino.mk
+MAKE_ARDUINO=$(MAKE) --no-print-directory -C arduino_app -f arduino.mk
 arduino_verify: $(XML_LIBRARY_OBJS) $(TDD_OBJS)
 	$(MAKE_ARDUINO) verify

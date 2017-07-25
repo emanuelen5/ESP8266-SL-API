@@ -16,7 +16,9 @@ BUILD_PATH=./output
 $(TGT_EXE): $(TGT_EXE_SRCS) $(TGT_EXE_DEPS)
 	$(CC) --verify arduino_app.ino --pref build.path=$(BUILD_PATH)
 
-.PHONY=verify clean
-verify: $(TGT_EXE)
+.PHONY=verify clean mkdir_output
+verify: $(BUILD_PATH) $(TGT_EXE)
 clean:
-	rm -rf $(BUILD_PATH)/*
+	rm -rf $(BUILD_PATH)
+$(BUILD_PATH): 
+	@mkdir $(BUILD_PATH)
