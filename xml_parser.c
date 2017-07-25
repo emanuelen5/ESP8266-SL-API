@@ -2,9 +2,15 @@
 #include "string.h"
 
 void initStringPtrT(string_ptr_t *spt, char *string) {
-  spt->start = 0;
-  spt->end = strlen(string);
+  spt->start  = 0;
+  spt->end    = strlen(string);
   spt->string = string;
+}
+
+void zeroStringPtrT(string_ptr_t *spt) {
+  spt->start  = 0;
+  spt->end    = 0;
+  spt->string = NULL;
 }
 
 int findNodeBoundary(string_ptr_t *outStr, string_ptr_t *inStr, const char *nodeToFind) {

@@ -2,3 +2,4 @@
 *.exe
 *.html
 arduino_app/output
+output
