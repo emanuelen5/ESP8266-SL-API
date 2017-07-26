@@ -1,28 +1,33 @@
 #ifndef _XML_PARSER_H_
 #define _XML_PARSER_H_
 
-typedef struct {
-  char *string;
-  int start, end;
-} string_ptr_t;
-
-void initStringPtrT(string_ptr_t *spt, char *string);
-void zeroStringPtrT(string_ptr_t *spt);
-
 /**
- * Finds the outer boundary of a node (including the angle brackets). 
- * @param[out]  outStr Result of search (allocated by caller)
- * @param[in]   inStr  Input string
- * @return      Status (0 if found, non-zero for failure)
+ * A class that points at a specific XML node in a text
  */
-int findNodeBoundary(string_ptr_t *outStr, string_ptr_t *inStr, const char *nodeToFind);
+class XML_Node {
+    char *string;
+    int start, end;
+  public:
+    XML_Node();
+    XML_Node(char *string);
 
-/**
- * Gets the boundaries of the inner part of the node
- * @param[out]  outStr Result of search (allocated by caller)
- * @param[in]   inStr  Input string
- * @return      Status (non-zero for failure)
- */
-int getNodeInner(string_ptr_t *outStr, string_ptr_t *inStr);
+    /**
+     * Finds the outer boundary of a node (including the angle brackets).
+     * @param[out]  outNode    Result of search
+     * @param[in]   childName  Input string
+     * @return      Status (0 if found, non-zero for failure)
+     */
+    int findChild(XML_Node &outNode, const char *childName);
+
+    char *getString() {return string;};
+    char *getStartPtr() {return string+start;};
+    char *getEndPtr() {return string+end;};
+    int getStart() {return start;};
+    int getEnd() {return end;};
+    int getLength() {return end - start + 1;};
+
+  private:
+    XML_Node(char *string, int start, int end);
+};
 
 #endif

@@ -72,19 +72,19 @@ TEST(OFFLINE_XML_FILES, CanReadFiles) {
 
 TEST(OFFLINE_XML_FILES, CanFindStatusCode) {
   int status;
-  string_ptr_t res;
+  XML_Node xmlNode;
 
-  initStringPtrT(&res, text_buffer_departure);
-  status = findNodeBoundary(&res, &res, "StatusCode");
+  xmlNode = XML_Node(text_buffer_departure);
+  status = xmlNode.findChild(xmlNode, "StatusCode");
   TEST_ASSERT_EQUAL(0, status);
-  TEST_ASSERT_EQUAL(121, res.start);
-  TEST_ASSERT_EQUAL(146, res.end);
+  TEST_ASSERT_EQUAL(121, xmlNode.getStart());
+  TEST_ASSERT_EQUAL(146, xmlNode.getEnd());
 
-  initStringPtrT(&res, text_buffer_station);
-  status = findNodeBoundary(&res, &res, "StatusCode");
+  xmlNode = XML_Node(text_buffer_station);
+  status = xmlNode.findChild(xmlNode, "StatusCode");
   TEST_ASSERT_EQUAL(0, status);
-  TEST_ASSERT_EQUAL(121, res.start);
-  TEST_ASSERT_EQUAL(146, res.end);
+  TEST_ASSERT_EQUAL(121, xmlNode.getStart());
+  TEST_ASSERT_EQUAL(146, xmlNode.getEnd());
 }
 
 TEST_GROUP_RUNNER(OFFLINE_XML_FILES) {

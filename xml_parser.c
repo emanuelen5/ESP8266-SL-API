@@ -1,32 +1,36 @@
 #include "xml_parser.h"
 #include "string.h"
 
-void initStringPtrT(string_ptr_t *spt, char *string) {
-  spt->start  = 0;
-  spt->end    = strlen(string);
-  spt->string = string;
+XML_Node::XML_Node() {
+  this->start  = 0;
+  this->end    = 0;
+  this->string = NULL;
 }
 
-void zeroStringPtrT(string_ptr_t *spt) {
-  spt->start  = 0;
-  spt->end    = 0;
-  spt->string = NULL;
+XML_Node::XML_Node(char *string) {
+  this->start  = 0;
+  this->end    = strlen(string);
+  this->string = string;
 }
 
-int findNodeBoundary(string_ptr_t *outStr, string_ptr_t *inStr, const char *nodeToFind) {
-  char *pos = inStr->string + inStr->start;
-  pos = strstr(pos, nodeToFind);
+XML_Node::XML_Node(char *string, int start, int end) {
+  this->start  = start;
+  this->end    = end;
+  this->string = string;
+}
+
+int XML_Node::findChild(XML_Node &outNode, const char *childName) {
+  char *pos = this->getStartPtr();
+  pos = strstr(pos, childName);
   // Not found
   if (pos == NULL) {
     return -1;
   }
 
-  outStr->start = pos - inStr->string - 1;
-  pos = strstr(pos+1, nodeToFind);
-  outStr->end = pos - inStr->string + strlen(nodeToFind);
-  return 0;
-}
+  int start = pos - this->getStartPtr() - 1;
+  pos = strstr(pos+1, childName);
+  int end = pos - this->getStartPtr() + strlen(childName);
 
-int getNodeInner(string_ptr_t *outStr, string_ptr_t *inStr) {
-  return 1;
+  outNode = XML_Node(this->getString(), start, end);
+  return 0;
 }
