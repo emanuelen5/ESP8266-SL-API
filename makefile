@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-Wall -std=c99
+CC=g++
+CFLAGS=-Wall
 
 ifeq ($(OS),Windows_NT)
 	EXE_EXT=exe
@@ -52,7 +52,13 @@ $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 	@echo "Linking development tests"
 	$(CC) $(CFLAGS) -o $@ $^ $(TDD_INCL)
 	@echo ""
-	@$(MAKE) --no-print-directory test
+
+
+## Inclusion dependencies ##
+# xml_parser.h
+$(BUILD_PATH)/xml_parser.o $(BUILD_PATH)/test_xml_parser.o $(BUILD_PATH)/test_xml_parser_basic.o: xml_parser.h
+$(BUILD_PATH)/xml_parser.o $(BUILD_PATH)/test_xml_parser.o $(BUILD_PATH)/test_xml_parser_basic.o $(BUILD_PATH)/dev_test_suite.o: $(INCLUDE_PATH)/unity_fixture/unity_fixture.h
+$(BUILD_PATH)/unity_fixture.o: $(INCLUDE_PATH)/unity/unity.h
 
 
 ## Run test ##
@@ -76,7 +82,7 @@ $(BUILD_PATH):
 ## Miscellaneous ##
 .DEFAULT_GOAL=all
 .PHONY=all clean test readme arduino_verify arduino_upload
-all: $(DEV_EXE) $(DEV_TEST_EXE) $(README_OUT)
+all: $(DEV_EXE) test $(README_OUT)
 clean:
 	@rm -vf $(XML_LIBRARY_OBJS) $(DEV_TEST_DEPS) $(DEV_EXE_OBJS) $(README_OUT) $(DEV_EXE) $(DEV_TEST_EXE)
 	$(MAKE_ARDUINO) clean

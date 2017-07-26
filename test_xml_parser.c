@@ -2,9 +2,8 @@
 #include "xml_parser.h"
 #include <stdio.h>
 
-#define MSG_LENGTH 100
 #define RESPONSE_MAX_LENGTH 7000
-char msg[MSG_LENGTH];
+extern char *msg;
 FILE *fh_departure, *fh_station;
 char text_buffer_departure[RESPONSE_MAX_LENGTH], text_buffer_station[RESPONSE_MAX_LENGTH];
 
@@ -35,7 +34,7 @@ TEST_TEAR_DOWN(OFFLINE_XML_FILES) {
  * @param filepath Path to file
  */
 static void testCanOpenFile(const char *filepath) {
-  sprintf(msg, "Could not open '%s'", filepath);
+  sprintf(msg, "Could not file '%s', required for tests", filepath);
   FILE *fh = getRO_File(filepath);
   TEST_ASSERT_MESSAGE(fh, msg);
 }
@@ -49,10 +48,10 @@ TEST(OFFLINE_XML_FILES, FilesArePresent) {
 }
 
 /**
- * Calls the function bufferFile with the expansion of an XML file name
+ * Calls the function bufferFile with the expansion of an XML association (departure/station)
  * @param  NAME Name of an XML file
  */
-#define CALL_BUFFER_FILE(NAME) bufferFile(text_buffer_##NAME, fh_##NAME, #NAME)
+#define CALL_BUFFER_FILE(NAME) bufferFile(text_buffer_##NAME, fh_##NAME, (char*) #NAME)
 
 void bufferFile(char *text_buffer, FILE *fh, char *fileName) {
   size_t nRead;
