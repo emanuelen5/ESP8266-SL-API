@@ -19,6 +19,14 @@ XML_Node::XML_Node(char *string, int start, int end) {
   this->string = string;
 }
 
+int XML_Node::findNextNode(XML_Node &outNode) {
+  return -1;
+}
+
+int XML_Node::findFirstChild(XML_Node &outNode) {
+  return -1;
+}
+
 int XML_Node::findChild(XML_Node &outNode, const char *childName) {
   char *pos = this->getStartPtr();
   pos = strstr(pos, childName);

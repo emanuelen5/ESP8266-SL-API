@@ -5,8 +5,6 @@
  * A class that points at a specific XML node in a text
  */
 class XML_Node {
-    char *string;
-    int start, end;
   public:
     XML_Node();
     XML_Node(char *string);
@@ -18,6 +16,8 @@ class XML_Node {
      * @return      Status (0 if found, non-zero for failure)
      */
     int findChild(XML_Node &outNode, const char *childName);
+    int findNextNode(XML_Node &outNode);
+    int findFirstChild(XML_Node &outNode);
 
     char *getString() {return string;};
     char *getStartPtr() {return string+start;};
@@ -28,6 +28,8 @@ class XML_Node {
 
   private:
     XML_Node(char *string, int start, int end);
+    char *string;
+    int start, end;
 };
 
 #endif
