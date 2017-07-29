@@ -1,6 +1,6 @@
 #include "unity_fixture.h"
-#include "xml_parser.h"
-#include "test_common.h"
+#include "xml_parser.hpp"
+#include "test_common.hpp"
 
 #define RESPONSE_MAX_LENGTH 7000
 extern char *msg;

@@ -1,4 +1,4 @@
-#include "xml_parser.h"
+#include "xml_parser.hpp"
 #include "string.h"
 
 XML_Node::XML_Node() {

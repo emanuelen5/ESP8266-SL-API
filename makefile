@@ -15,7 +15,7 @@ INCLUDE_PATH=include
 # %.o: 
 	# Fix: Otherwise, test.o etc. matches the rule below
 	# @echo "Strange, $@ triggered this rule"
-$(BUILD_PATH)/%.o: %.c
+$(BUILD_PATH)/%.o: %.cpp
 	@echo "Compiling dependency"
 	$(CC) $(CFLAGS) -o $@ $< $(TDD_INCL) -c
 
@@ -45,7 +45,7 @@ $(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
 
 ## Development tests executable ##
 DEV_TEST_EXE=$(BUILD_PATH)/test_runner.$(EXE_EXT)
-DEVELOPMENT_OBJS=$(BUILD_PATH)/dev_test_suite.o $(BUILD_PATH)/test_xml_parser.o $(BUILD_PATH)/test_xml_parser_basic.o $(BUILD_PATH)/test_xml_parser_parseTag.o $(BUILD_PATH)/test_common.o
+DEVELOPMENT_OBJS=$(BUILD_PATH)/dev_test_suite.o $(BUILD_PATH)/test_xml_parser_offline.o $(BUILD_PATH)/test_xml_parser_basic.o $(BUILD_PATH)/test_xml_parser_parseTag.o $(BUILD_PATH)/test_common.o
 DEV_TEST_DEPS=$(TDD_OBJS) $(XML_LIBRARY_OBJS) $(DEVELOPMENT_OBJS)
 $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 	@echo ""
@@ -56,9 +56,9 @@ $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 
 ## Dependencies from preprocessor inclusions ##
 # xml_parser files
-$(BUILD_PATH)/xml_parser.o: xml_parser.h
+$(BUILD_PATH)/xml_parser.o: xml_parser.hpp
 # tests
-$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: xml_parser.h test_common.h $(INCLUDE_PATH)/unity_fixture/unity_fixture.h
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: xml_parser.hpp test_common.hpp $(INCLUDE_PATH)/unity_fixture/unity_fixture.h
 # unity
 $(BUILD_PATH)/unity.o: $(INCLUDE_PATH)/unity/*.h
 $(BUILD_PATH)/unity_fixture.o: $(INCLUDE_PATH)/unity_fixture/*.h
@@ -80,12 +80,13 @@ $(README_OUT): readme.md
 	$(MARKDOWN) $< > $@
 
 $(BUILD_PATH):
+	@echo "Creating output directory"
 	@mkdir $(BUILD_PATH)
 
 ## Miscellaneous ##
 .DEFAULT_GOAL=all
 .PHONY=all clean test readme arduino_verify arduino_upload
-all: $(DEV_EXE) test $(README_OUT)
+all: $(BUILD_PATH) $(README_OUT) $(DEV_EXE) test
 clean:
 	@rm -vf $(XML_LIBRARY_OBJS) $(DEV_TEST_DEPS) $(DEV_EXE_OBJS) $(README_OUT) $(DEV_EXE) $(DEV_TEST_EXE)
 	$(MAKE_ARDUINO) clean

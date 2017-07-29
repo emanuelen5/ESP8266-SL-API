@@ -1,6 +1,6 @@
 #include "unity_fixture.h"
-#include "xml_parser.h"
-#include "test_common.h"
+#include "xml_parser.hpp"
+#include "test_common.hpp"
 #include "string.h"
 
 #define TAG_LENGTH_MAX 50
