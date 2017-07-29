@@ -23,8 +23,8 @@ XML_Node xmlNode, xmlNodeFound;
  */
 static inline int indexAfterMatch(const char *haystack, const char *needle) {
   int matchPos = strstr(haystack, needle) - haystack;
-  if (matchPos >= 0 and matchPos < (signed)(strlen(needle) - strlen(haystack))) {
-    matchPos += sizeof(needle) + 1;
+  if (matchPos >= 0 and matchPos < (signed)(strlen(haystack) - strlen(needle))) {
+    matchPos += strlen(needle);
   }
   return matchPos;
 }
@@ -55,6 +55,11 @@ TEST(XML_PARSER_BASIC, CanNotFindPartialName) {
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "node_0"), message);
 }
 
+TEST(XML_PARSER_BASIC, IndexAfterMatch) {
+  char test_str[] = "0123456789";
+  TEST_ASSERT_EQUAL('2', test_str[indexAfterMatch(test_str, "1")]);
+}
+
 TEST(XML_PARSER_BASIC, FirstChild) {
   TEST_ASSERT_EQUAL(0, xmlNode.findFirstChild(xmlNodeFound));
   TEST_ASSERT_EQUAL(indexAfterMatch(xml_string, "<NODE_0>"), xmlNodeFound.getStart());
@@ -69,7 +74,7 @@ TEST(XML_PARSER_BASIC, NextNode) {
 void testParseTag(char *xml_tag_string, int expectedStatus, enum E_XML_TAG_TYPE expectedTagType) {
   enum E_XML_TAG_TYPE tagType = XML_TAG_ERROR_UNDEFINED;
   int parseEnd = -1;
-  TEST_ASSERT_EQUAL(expectedStatus, parseTag(xml_tag_string, &parseEnd, &tagType));
+  TEST_ASSERT_EQUAL(expectedStatus, parseTag(xml_tag_string, parseEnd, tagType));
   TEST_ASSERT_EQUAL(strlen(xml_tag_string), parseEnd);
   TEST_ASSERT_EQUAL(expectedTagType, tagType);
 }
@@ -90,20 +95,37 @@ TEST(XML_PARSER_BASIC, ParseTagIllegalStart) {
   char xml_tag_string[] = "Value</MiddleOfNode>";
   enum E_XML_TAG_TYPE tagType = XML_TAG_ERROR_UNDEFINED;
   int parseEnd = -1;
-  TEST_ASSERT_EQUAL(-1, parseTag(xml_tag_string, &parseEnd, &tagType));
+  TEST_ASSERT_EQUAL(-1, parseTag(xml_tag_string, parseEnd, tagType));
   TEST_ASSERT_EQUAL(0, parseEnd);
   TEST_ASSERT_EQUAL(XML_TAG_ERROR_ILLEGAL_START_POS, tagType);
 }
 
+TEST(XML_PARSER_BASIC, ParseTagIllegalEnd) {
+  char xml_tag_string[] = "<Value/a>";
+  enum E_XML_TAG_TYPE tagType = XML_TAG_ERROR_UNDEFINED;
+  int parseEnd = -1;
+  TEST_ASSERT_EQUAL(-1, parseTag(xml_tag_string, parseEnd, tagType));
+  TEST_ASSERT_EQUAL(XML_TAG_ERROR_ILLEGAL_ENDING, tagType);
+}
+
+TEST(XML_PARSER_BASIC, ParseTagNotXML) {
+  char xml_tag_string[] = "<xml/>";
+  enum E_XML_TAG_TYPE tagType = XML_TAG_ERROR_UNDEFINED;
+  int parseEnd = -1;
+  TEST_ASSERT_EQUAL(-1, parseTag(xml_tag_string, parseEnd, tagType));
+  TEST_ASSERT_EQUAL(XML_TAG_ERROR_ILLEGAL_NAME, tagType);
+}
+
 TEST(XML_PARSER_BASIC, ParseTagName) {
   char xml_tag_string[] = "Value/>";
-  int parseEnd = 1;
-  TEST_ASSERT_EQUAL(0, parseEnd);
-  TEST_ASSERT_EQUAL(0, parseTagName(xml_tag_string, &parseEnd));
+  int parseEnd = -1;
+  TEST_ASSERT_EQUAL(0, parseTagName(xml_tag_string, parseEnd));
+  TEST_ASSERT_EQUAL(indexAfterMatch(xml_tag_string, "Value"), parseEnd);
 }
 
 TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, ConstructorString);
+  RUN_TEST_CASE(XML_PARSER_BASIC, IndexAfterMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, FirstChild);
   RUN_TEST_CASE(XML_PARSER_BASIC, CanNotFindGibberish);
   RUN_TEST_CASE(XML_PARSER_BASIC, CanNotFindPartialName);
@@ -112,5 +134,7 @@ TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, ParseTagSelfClosing);
   RUN_TEST_CASE(XML_PARSER_BASIC, ParseTagClosing);
   RUN_TEST_CASE(XML_PARSER_BASIC, ParseTagIllegalStart);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ParseTagIllegalEnd);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ParseTagNotXML);
   RUN_TEST_CASE(XML_PARSER_BASIC, ParseTagName);
 }

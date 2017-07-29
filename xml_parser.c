@@ -25,7 +25,6 @@ int XML_Node::findNextNode(XML_Node &outNode) {
 }
 
 int XML_Node::findFirstChild(XML_Node &outNode) {
-
   return 0;
   outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
 }
@@ -46,37 +45,53 @@ int XML_Node::findChild(XML_Node &outNode, const char *childName) {
   return 0;
 }
 
-int parseTag(char *xmlTagStart, int *parseEnd, enum E_XML_TAG_TYPE *tagType) {
+int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
   if (xmlTagStart[0] != '<') {
-    *tagType = XML_TAG_ERROR_ILLEGAL_START_POS;
+    tagType = XML_TAG_ERROR_ILLEGAL_START_POS;
+    parseEnd = 0;
     return -1;
   } else {
-    *tagType = XML_TAG_ERROR_UNDEFINED; // Default assignment
+    tagType = XML_TAG_ERROR_UNDEFINED; // Default assignment
   }
 
-  int currentIndex = 1;
-  if (xmlTagStart[currentIndex] == '/') {
-    *tagType = XML_TAG_CLOSING;
-    currentIndex++;
+  parseEnd = 1;
+  if (xmlTagStart[parseEnd] == '/') {
+    tagType = XML_TAG_CLOSING;
+    parseEnd++;
   }
 
-  // while (xmlTagStart[currentIndex] == ' ') {
-  //   currentIndex++;
-  // }
+  while (xmlTagStart[parseEnd] == ' ') {
+    parseEnd++;
+  }
 
+  // Parse the name of the XML tag
   int parseTagNameEnd;
-  int status = parseTagName(&xmlTagStart[currentIndex], &parseTagNameEnd);
-  int nameStart = currentIndex;
-  int nameEnd = parseTagNameEnd + nameStart;
+  int status = parseTagName(&xmlTagStart[parseEnd], parseTagNameEnd);
+  parseEnd += parseTagNameEnd;
   if (status) {
-    *tagType = XML_TAG_ERROR_ILLEGAL_NAME;
-    *parseEnd = nameEnd;
+    tagType = XML_TAG_ERROR_ILLEGAL_NAME;
     return status;
   }
 
-  // while (xmlTagStart[currentIndex] == ' ') {
-  //   currentIndex++;
-  // }
+  while (xmlTagStart[parseEnd] == ' ') {
+    parseEnd++;
+  }
+
+  // Check the ending
+  if (tagType == XML_TAG_CLOSING && xmlTagStart[parseEnd] != '>') {
+    return -1;
+  } else if (xmlTagStart[parseEnd] == '/') {
+    tagType = XML_TAG_SELF_CLOSING;
+    parseEnd++;
+  }
+
+  if (xmlTagStart[parseEnd] != '>') {
+    tagType = XML_TAG_ERROR_ILLEGAL_ENDING;
+    return -1;
+  } else if (tagType != XML_TAG_SELF_CLOSING && tagType != XML_TAG_CLOSING) {
+    tagType = XML_TAG_OPENING;
+  }
+  parseEnd++;
 
   return 0;
 }
@@ -84,21 +99,35 @@ int parseTag(char *xmlTagStart, int *parseEnd, enum E_XML_TAG_TYPE *tagType) {
 #define ASCII_TO_LOWERCASE(c)    (((c) >= 'A') && ((c) <= 'Z'))?(c) - ('A' - 'a'):(c)
 
 int categorizeXMLNameCharacter(char c) {
-  if (c == '.' || c == '-' || (c >= '0' && c <= '9')) {
-    return 2;
-  } else if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+  // Legal starting XML characters
+  if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
     return 1;
+  // Legal inner XML characters
+  } else if (c == '.' || c == '-' || (c >= '0' && c <= '9')) {
+    return 2;
+  // Illegal XML characters
   } else {
     return 0;
   }
 }
 
-int parseTagName(char *xmlTagNameStart, int *parseEnd) {
-  if (*parseEnd >= 3) {
+int parseTagName(char *xmlTagNameStart, int &parseEnd) {
+  if (categorizeXMLNameCharacter(xmlTagNameStart[0]) != 1) {
+    parseEnd = 0;
+    return -1;
+  }
+
+  parseEnd = 1;
+  while (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd])) {
+    parseEnd++;
+  }
+
+  if (parseEnd == 3) {
+    // Cannot be called "XML"
     if ((ASCII_TO_LOWERCASE(xmlTagNameStart[0]) == 'x') &&
         (ASCII_TO_LOWERCASE(xmlTagNameStart[1]) == 'm' &&
         (ASCII_TO_LOWERCASE(xmlTagNameStart[2]) == 'l'))) {
-      *parseEnd = 0;
+      parseEnd = 0;
       return -1;
     }
   }
