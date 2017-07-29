@@ -3,11 +3,16 @@
 #define MSG_LENGTH 100
 char msg[MSG_LENGTH];
 
+#define RUN_TESTS(name)
+
 static void runAllDevTests() {
   RUN_TEST_GROUP(OFFLINE_XML_FILES);
   RUN_TEST_GROUP(XML_PARSER_BASIC);
+  RUN_TEST_GROUP(XML_PARSER_PARSE_TAG);
 }
 
 int main(int argc, const char *argv[]) {
-  return UnityMain(argc, argv, runAllDevTests);
+  int status = 0;
+  status |= UnityMain(argc, argv, runAllDevTests);
+  return status;
 }

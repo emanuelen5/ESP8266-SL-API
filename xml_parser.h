@@ -52,4 +52,4 @@ enum E_XML_TAG_TYPE {
 int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
 int parseTagName(char *xmlTagStart, int &parseEnd);
 
-#endif
+#endif //_XML_PARSER_H_
