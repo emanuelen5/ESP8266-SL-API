@@ -5,7 +5,7 @@
 #define RESPONSE_MAX_LENGTH 7000
 extern char *msg;
 FILE *fh_departure, *fh_station;
-char text_buffer_departure[RESPONSE_MAX_LENGTH], text_buffer_station[RESPONSE_MAX_LENGTH];
+static char text_buffer_departure[RESPONSE_MAX_LENGTH], text_buffer_station[RESPONSE_MAX_LENGTH];
 
 TEST_GROUP(OFFLINE_XML_FILES);
 
