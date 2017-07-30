@@ -1,4 +1,4 @@
-# XML Parser for SL app
+# XML Parser for SL APP
 ## General description
 The purpose of this application is to get current data from the Trafiklab API and present the information on a display. The application will in the end run on a microcontroller in the ESP8266 class which has a TCP/IP stack and WiFi capabilities.
 
@@ -31,8 +31,11 @@ The `make` structure might therefore develop into something overwhelming. I will
 ### XML parser
 The XML parser makes only the simplest parsing that is needed for this project:
 
-  * It can find a nodes start and end
+  * It can find a node's start and end
   * It can find the inner part of a node
+  * It can find the next node within the parent
+  * Only leaf nodes will contain text
+  * Nodes' attributes will be skipped
 
 #### Tests
   
@@ -50,4 +53,4 @@ Two offline example files are used for development tests: **Station lookup** and
 The Arduino environment is used for the source code of the target platform (ESP8266).
 
 ## License
-This material can be used in educational purposes (private use) but not in commercially directed applications.
+GNU GPL applies to all files in this project. See the file called `LICENSE` for more information.
