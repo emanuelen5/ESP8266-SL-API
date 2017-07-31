@@ -45,7 +45,7 @@ $(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
 
 ## Development tests executable ##
 DEV_TEST_EXE=$(BUILD_PATH)/test_runner.$(EXE_EXT)
-DEVELOPMENT_OBJS=$(BUILD_PATH)/dev_test_suite.o $(BUILD_PATH)/test_xml_parser_offline.o $(BUILD_PATH)/test_xml_parser_basic.o $(BUILD_PATH)/test_xml_parser_parseTag.o $(BUILD_PATH)/test_common.o
+DEVELOPMENT_OBJS=$(addprefix $(BUILD_PATH)/, dev_test_suite.o test_xml_parser_offline.o test_xml_parser_basic.o test_xml_parser_parseTag.o test_common.o test_xml_parser_private.o)
 DEV_TEST_DEPS=$(TDD_OBJS) $(XML_LIBRARY_OBJS) $(DEVELOPMENT_OBJS)
 $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 	@echo ""
@@ -58,10 +58,10 @@ $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 # xml_parser files
 $(BUILD_PATH)/xml_parser.o: xml_parser.hpp
 # tests
-$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: xml_parser.hpp test_common.hpp $(INCLUDE_PATH)/unity_fixture/unity_fixture.h
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/test_common.o: xml_parser.hpp test_common.hpp
 # unity
 $(BUILD_PATH)/unity.o: $(INCLUDE_PATH)/unity/*.h
-$(BUILD_PATH)/unity_fixture.o: $(INCLUDE_PATH)/unity_fixture/*.h
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: $(INCLUDE_PATH)/unity_fixture/unity_fixture.h
 
 
 ## Run test ##
