@@ -1,5 +1,5 @@
 #include "xml_parser.hpp"
-#include "string.h"
+#include <string.h>
 
 XML_Node::XML_Node() {
   this->start  = 0;
@@ -60,10 +60,6 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
     parseEnd++;
   }
 
-  while (xmlTagStart[parseEnd] == ' ') {
-    parseEnd++;
-  }
-
   // Parse the name of the XML tag
   int parseTagNameEnd;
   int status = parseTagName(&xmlTagStart[parseEnd], parseTagNameEnd);
@@ -71,10 +67,6 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
   if (status) {
     tagType = XML_TAG_ERROR_ILLEGAL_NAME;
     return status;
-  }
-
-  while (xmlTagStart[parseEnd] == ' ') {
-    parseEnd++;
   }
 
   // Check the ending
@@ -131,5 +123,29 @@ int parseTagName(char *xmlTagNameStart, int &parseEnd) {
       return -1;
     }
   }
+  return 0;
+}
+
+int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
+  // The name of the attribute follows the same naming convention as the tag name
+  if (parseTagName(xmlTagAttributeStart, parseEnd)) {
+    return -1;
+  }
+
+  if (xmlTagAttributeStart[parseEnd++] != '=') {
+    return -2;
+  } else if (xmlTagAttributeStart[parseEnd++] != '\"') {
+    return -3;
+  }
+
+  while (!((xmlTagAttributeStart[parseEnd] == '\"' && xmlTagAttributeStart[parseEnd-1] != '\\') || xmlTagAttributeStart[parseEnd] == '\0')) {
+    parseEnd++;
+  }
+
+  // Make sure that the ending was not due to null character
+  if (xmlTagAttributeStart[parseEnd] == '\0' && !(xmlTagAttributeStart[parseEnd-1] == '\"' && xmlTagAttributeStart[parseEnd-2] != '\\'))
+    return -4;
+  
+  parseEnd++;
   return 0;
 }

@@ -1,7 +1,7 @@
 #include "unity_fixture.h"
 #include "xml_parser.hpp"
 #include "test_common.hpp"
-#include "string.h"
+#include <string.h>
 
 int indexAfterMatch(const char *haystack, const char *needle) {
   int matchPos = strstr(haystack, needle) - haystack;

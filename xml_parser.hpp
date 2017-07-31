@@ -33,23 +33,24 @@ class XML_Node {
 };
 
 enum E_XML_TAG_TYPE {
-  XML_TAG_ERROR_UNDEFINED,
-  XML_TAG_ERROR_ILLEGAL_START_POS,
-  XML_TAG_ERROR_ILLEGAL_NAME,
-  XML_TAG_ERROR_ILLEGAL_ENDING,
-  XML_TAG_SELF_CLOSING,
-  XML_TAG_OPENING,
-  XML_TAG_CLOSING,
+  XML_TAG_ERROR_UNDEFINED          = -1,
+  XML_TAG_ERROR_ILLEGAL_START_POS  = -2,
+  XML_TAG_ERROR_ILLEGAL_NAME       = -3,
+  XML_TAG_ERROR_ILLEGAL_ENDING     = -4,
+  XML_TAG_SELF_CLOSING             =  1,
+  XML_TAG_OPENING                  =  2,
+  XML_TAG_CLOSING                  =  3,
 };
 
 /**
- * Parses a tag for its type
+ * Parses a tag for its type. The tag can contain attributes, bust must follow the name rules for XML.
  * @param  xmlTagStart  XML content
  * @param  parseEnd     End position (index after tag close)
  * @param  tagType      Type of tag that was parsed
  * @return              Status, non-zero if error
  */
 int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
-int parseTagName(char *xmlTagStart, int &parseEnd);
+int parseTagName(char *xmlTagNameStart, int &parseEnd);
+int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd);
 
 #endif //_XML_PARSER_H_

@@ -1,7 +1,7 @@
 #include "unity_fixture.h"
 #include "xml_parser.hpp"
 #include "test_common.hpp"
-#include "string.h"
+#include <string.h>
 
 extern char *msg;
 static char xml_string[] = 
@@ -30,12 +30,12 @@ TEST_TEAR_DOWN(XML_PARSER_BASIC) {
 
 TEST(XML_PARSER_BASIC, ConstructorString) {
   TEST_ASSERT_EQUAL_STRING(xml_string, xmlNode.getString());
-  TEST_ASSERT_EQUAL(0, xmlNode.getStart());
-  TEST_ASSERT_EQUAL(strlen(xml_string), xmlNode.getEnd());
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.getStart(), "Start index");
+  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string), xmlNode.getEnd(), "End index");
 }
 
 TEST(XML_PARSER_BASIC, CanNotFindGibberish) {
-  TEST_ASSERT_NOT_EQUAL(0, xmlNode.findChild(xmlNodeFound, "Gibberish"));
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "Gibberish"), "Should not be found!");
 }
 
 TEST(XML_PARSER_BASIC, CanNotFindPartialName) {
@@ -46,18 +46,18 @@ TEST(XML_PARSER_BASIC, CanNotFindPartialName) {
 
 TEST(XML_PARSER_BASIC, IndexAfterMatch) {
   char test_str[] = "0123456789";
-  TEST_ASSERT_EQUAL('2', test_str[indexAfterMatch(test_str, "1")]);
+  TEST_ASSERT_EQUAL_MESSAGE('2', test_str[indexAfterMatch(test_str, "1")], "Index position");
 }
 
 TEST(XML_PARSER_BASIC, FirstChild) {
-  TEST_ASSERT_EQUAL(0, xmlNode.findFirstChild(xmlNodeFound));
-  TEST_ASSERT_EQUAL(indexAfterMatch(xml_string, "<NODE_0>"), xmlNodeFound.getStart());
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findFirstChild(xmlNodeFound), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "<NODE_0>"), xmlNodeFound.getStart(), "Index position");
 }
 
 TEST(XML_PARSER_BASIC, NextNode) {
   xmlNode.findFirstChild(xmlNode);
-  TEST_ASSERT_EQUAL(0, xmlNode.findNextNode(xmlNodeFound));
-  TEST_ASSERT_EQUAL(indexAfterMatch(xml_string, "</NODE_0_0>"), xmlNodeFound.getStart());
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findNextNode(xmlNodeFound), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "</NODE_0_0>"), xmlNodeFound.getStart(), "Index position");
 }
 
 TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
