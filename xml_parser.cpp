@@ -69,6 +69,17 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
     return status;
   }
 
+  while (xmlTagStart[parseEnd] == ' ') {
+    while (xmlTagStart[++parseEnd] == ' ');
+    int parseTagAttributeEnd;
+    status = parseTagAttribute(&xmlTagStart[parseEnd], parseTagAttributeEnd);
+    parseEnd += parseTagAttributeEnd;
+    if (status) {
+      tagType = XML_TAG_ERROR_ILLEGAL_ATTRIBUTE;
+      return status;
+    }
+  }
+
   // Check the ending
   if (tagType == XML_TAG_CLOSING && xmlTagStart[parseEnd] != '>') {
     return -1;
@@ -145,7 +156,7 @@ int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
   // Make sure that the ending was not due to null character
   if (xmlTagAttributeStart[parseEnd] == '\0' && !(xmlTagAttributeStart[parseEnd-1] == '\"' && xmlTagAttributeStart[parseEnd-2] != '\\'))
     return -4;
-  
+
   parseEnd++;
   return 0;
 }

@@ -67,7 +67,14 @@ TEST(XML_PARSER_PARSE_TAG, Name) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, WithAttribute) {
-  SET_XML_TAG_STRING("<Tag attribute=\"azAZ09.,!@#$%^&*/;'()[]{}|+-_=\\/><");
+  SET_XML_TAG_STRING("<Tag attribute=\"azAZ09.,!@#$%^&*/;'()[]{}|+-_=\">");
+  TEST_ASSERT_EQUAL_MESSAGE(0, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
+  TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_OPENING, tagType, "Tag type");
+}
+
+TEST(XML_PARSER_PARSE_TAG, WithMultipleAttributes) {
+  SET_XML_TAG_STRING("<Tag attr1=\"value1\" attr2=\"value2\" >");
   TEST_ASSERT_EQUAL_MESSAGE(0, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_OPENING, tagType, "Tag type");
@@ -99,6 +106,7 @@ TEST_GROUP_RUNNER(XML_PARSER_PARSE_TAG) {
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, TagNameNotXML);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Name);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithAttribute);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithMultipleAttributes);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Attribute);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, AttributeEscapedQuote);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorAttributeEarlyEnding);
