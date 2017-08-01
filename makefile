@@ -56,12 +56,13 @@ $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 
 ## Dependencies from preprocessor inclusions ##
 # xml_parser files
-$(BUILD_PATH)/xml_parser.o: xml_parser.hpp
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/test_common.o: xml_parser.hpp
 # tests
-$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/test_common.o: xml_parser.hpp test_common.hpp
+$(DEVELOPMENT_OBJS) $(BUILD_PATH)/test_common.o: test_common.hpp
 # unity
 $(BUILD_PATH)/unity.o: $(INCLUDE_PATH)/unity/*.h
-$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: $(INCLUDE_PATH)/unity_fixture/unity_fixture.h
+# unity.h must be added as dependency as it is implicitly included by unity_fixture.h
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: $(INCLUDE_PATH)/unity_fixture/unity_fixture.h $(INCLUDE_PATH)/unity/unity.h
 
 
 ## Run test ##
