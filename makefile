@@ -1,5 +1,6 @@
 CC=g++
 CFLAGS=-Wall
+LDFLAGS=-Wall
 
 ifeq ($(OS),Windows_NT)
 	EXE_EXT=exe
@@ -39,7 +40,7 @@ XML_LIBRARY_OBJS=$(BUILD_PATH)/xml_parser.o
 $(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
 	@echo ""
 	@echo "Linking main executable"
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 	@echo ""
 
 
@@ -50,7 +51,7 @@ DEV_TEST_DEPS=$(TDD_OBJS) $(XML_LIBRARY_OBJS) $(DEVELOPMENT_OBJS)
 $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 	@echo ""
 	@echo "Linking development tests"
-	$(CC) $(CFLAGS) -o $@ $^ $(TDD_INCL)
+	$(CC) $(LDFLAGS) -o $@ $^ $(TDD_INCL)
 	@echo ""
 
 
@@ -65,13 +66,6 @@ $(BUILD_PATH)/unity.o: $(INCLUDE_PATH)/unity/*.h
 $(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: $(INCLUDE_PATH)/unity_fixture/unity_fixture.h $(INCLUDE_PATH)/unity/unity.h
 
 
-## Run test ##
-test: $(DEV_TEST_EXE)
-	@echo ""
-	@echo "Running development tests"
-	@- ./$(DEV_TEST_EXE)
-
-
 ## Readme ##
 MARKDOWN=Markdown.pl
 README_OUT=$(BUILD_PATH)/readme.html
@@ -80,11 +74,13 @@ $(README_OUT): readme.md
 	@echo "Generating readme"
 	$(MARKDOWN) $< > $@
 
+
 $(BUILD_PATH):
 	@echo "Creating output directory"
 	@mkdir $(BUILD_PATH)
 
-## Miscellaneous ##
+
+## Miscellaneous PHONY targets ##
 .DEFAULT_GOAL=all
 .PHONY=all clean test readme arduino_verify arduino_upload
 all: $(BUILD_PATH) $(README_OUT) $(DEV_EXE) test
@@ -92,6 +88,10 @@ clean:
 	@rm -vf $(XML_LIBRARY_OBJS) $(DEV_TEST_DEPS) $(DEV_EXE_OBJS) $(README_OUT) $(DEV_EXE) $(DEV_TEST_EXE)
 	$(MAKE_ARDUINO) clean
 readme: $(README_OUT)
+test: $(DEV_TEST_EXE)
+	@echo ""
+	@echo "Running development tests"
+	@- ./$(DEV_TEST_EXE)
 
 # Submake for Arduino sketch
 MAKE_ARDUINO=$(MAKE) --no-print-directory -C arduino_app -f arduino.mk
