@@ -26,7 +26,7 @@ class XML_Node {
     int getEnd() {return end;};
     int getLength() {return end - start + 1;};
 
-  private:
+  protected:
     XML_Node(char *string, int start, int end);
     char *string;
     int start, end;
@@ -53,5 +53,6 @@ enum E_XML_TAG_TYPE {
 int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
 int parseTagName(char *xmlTagNameStart, int &parseEnd);
 int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd);
+int parseUntilCharacter(char *xmlStart, int &parseEnd, char c);
 
 #endif //_XML_PARSER_H_

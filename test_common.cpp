@@ -10,3 +10,8 @@ int indexAfterMatch(const char *haystack, const char *needle) {
   }
   return matchPos;
 }
+
+int indexAtMatch(const char *haystack, const char *needle) {
+  int matchPos = strstr(haystack, needle) - haystack;
+  return matchPos;
+}

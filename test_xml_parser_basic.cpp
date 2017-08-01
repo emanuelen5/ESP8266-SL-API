@@ -16,7 +16,7 @@ static char xml_string[] =
       "</NODE_0_1_1>"
     "</NODE_0_1>"
   "</NODE_0>";
-XML_Node xmlNode, xmlNodeFound;
+static XML_Node xmlNode, xmlNodeFound;
 
 TEST_GROUP(XML_PARSER_BASIC);
 

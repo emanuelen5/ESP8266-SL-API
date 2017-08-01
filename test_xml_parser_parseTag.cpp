@@ -50,13 +50,13 @@ TEST(XML_PARSER_PARSE_TAG, ErrorTagStart) {
 
 TEST(XML_PARSER_PARSE_TAG, ErrorTagEnd) {
   SET_XML_TAG_STRING("<Value/a>");
-  TEST_ASSERT_EQUAL_MESSAGE(-1, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(-5, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_ERROR_ILLEGAL_ENDING, tagType, "Tag type");
 }
 
-TEST(XML_PARSER_PARSE_TAG, TagNameNotXML) {
+TEST(XML_PARSER_PARSE_TAG, ErrorTagNameXML) {
   SET_XML_TAG_STRING("<xml/>");
-  TEST_ASSERT_EQUAL_MESSAGE(-1, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(-2, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_ERROR_ILLEGAL_NAME, tagType, "Tag type");
 }
 
@@ -74,7 +74,7 @@ TEST(XML_PARSER_PARSE_TAG, WithAttribute) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, WithMultipleAttributes) {
-  SET_XML_TAG_STRING("<Tag attr1=\"value1\" attr2=\"value2\" >");
+  SET_XML_TAG_STRING("<Tag attr1=\"value1\" attr2=\"value2\">");
   TEST_ASSERT_EQUAL_MESSAGE(0, parseTag(xml_tag_string, parseEnd, tagType), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_OPENING, tagType, "Tag type");
@@ -97,17 +97,31 @@ TEST(XML_PARSER_PARSE_TAG, ErrorAttributeEarlyEnding) {
   TEST_ASSERT_EQUAL_MESSAGE(-4, parseTagAttribute(xml_tag_string, parseEnd), "Return status");
 }
 
+TEST(XML_PARSER_PARSE_TAG, ParseUntilCharacter) {
+  SET_XML_TAG_STRING("0123456789\"  ");
+  TEST_ASSERT_EQUAL_MESSAGE(0, parseUntilCharacter(xml_tag_string, parseEnd, '\"'), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(10, parseEnd,  "Parse end");
+}
+
+TEST(XML_PARSER_PARSE_TAG, ErrorParseUntilCharacterEarlyEnd) {
+  SET_XML_TAG_STRING("0123456789\0  ");
+  TEST_ASSERT_EQUAL_MESSAGE(-1, parseUntilCharacter(xml_tag_string, parseEnd, '\"'), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(10, parseEnd,  "Parse end");
+}
+
 TEST_GROUP_RUNNER(XML_PARSER_PARSE_TAG) {
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, OpeningTag);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, SelfClosingTag);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ClosingTag);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagStart);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagEnd);
-  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, TagNameNotXML);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagNameXML);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Name);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithAttribute);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithMultipleAttributes);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Attribute);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, AttributeEscapedQuote);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorAttributeEarlyEnding);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ParseUntilCharacter);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorParseUntilCharacterEarlyEnd);
 }

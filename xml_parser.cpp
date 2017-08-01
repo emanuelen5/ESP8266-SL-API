@@ -66,7 +66,7 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
   parseEnd += parseTagNameEnd;
   if (status) {
     tagType = XML_TAG_ERROR_ILLEGAL_NAME;
-    return status;
+    return -2;
   }
 
   while (xmlTagStart[parseEnd] == ' ') {
@@ -76,13 +76,14 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
     parseEnd += parseTagAttributeEnd;
     if (status) {
       tagType = XML_TAG_ERROR_ILLEGAL_ATTRIBUTE;
-      return status;
+      return -3;
     }
   }
 
   // Check the ending
   if (tagType == XML_TAG_CLOSING && xmlTagStart[parseEnd] != '>') {
-    return -1;
+    tagType = XML_TAG_ERROR_ILLEGAL_ENDING;
+    return -4;
   } else if (xmlTagStart[parseEnd] == '/') {
     tagType = XML_TAG_SELF_CLOSING;
     parseEnd++;
@@ -90,7 +91,7 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
 
   if (xmlTagStart[parseEnd] != '>') {
     tagType = XML_TAG_ERROR_ILLEGAL_ENDING;
-    return -1;
+    return -5;
   } else if (tagType != XML_TAG_SELF_CLOSING && tagType != XML_TAG_CLOSING) {
     tagType = XML_TAG_OPENING;
   }
@@ -115,8 +116,8 @@ int categorizeXMLNameCharacter(char c) {
 }
 
 int parseTagName(char *xmlTagNameStart, int &parseEnd) {
-  if (categorizeXMLNameCharacter(xmlTagNameStart[0]) != 1) {
-    parseEnd = 0;
+  parseEnd = 0;
+  if (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd]) != 1) {
     return -1;
   }
 
@@ -138,6 +139,7 @@ int parseTagName(char *xmlTagNameStart, int &parseEnd) {
 }
 
 int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
+  parseEnd = 0;
   // The name of the attribute follows the same naming convention as the tag name
   if (parseTagName(xmlTagAttributeStart, parseEnd)) {
     return -1;
@@ -158,5 +160,19 @@ int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
     return -4;
 
   parseEnd++;
+  return 0;
+}
+
+int parseUntilCharacter(char *xmlStart, int &parseEnd, char c) {
+  parseEnd = 0;
+  while (xmlStart[parseEnd] != c && xmlStart[parseEnd] != '\0') {
+    parseEnd++;
+  }
+
+  // Make sure that the ending was not due to null character
+  if (xmlStart[parseEnd-1] != c && xmlStart[parseEnd] == '\0') {
+    return -1;
+  }
+
   return 0;
 }
