@@ -90,7 +90,7 @@ TEST(XML_PARSER_PARSE_TAG, WithMultipleAttributes) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, Attribute) {
-  SET_XML_TAG_STRING("attr=\"Value\\\"\"");
+  SET_XML_TAG_STRING("attr=\"Value\"");
   status = parseTagAttribute(xml_tag_string, parseEnd);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");

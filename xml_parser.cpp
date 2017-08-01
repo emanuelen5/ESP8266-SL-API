@@ -70,6 +70,7 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
   }
 
   while (xmlTagStart[parseEnd] == ' ') {
+    // Consume all superfluous white space
     while (xmlTagStart[++parseEnd] == ' ');
     int parseTagAttributeEnd;
     status = parseTagAttribute(&xmlTagStart[parseEnd], parseTagAttributeEnd);
@@ -106,7 +107,7 @@ int categorizeXMLNameCharacter(char c) {
   // Legal starting XML characters
   if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
     return 1;
-  // Legal inner XML characters
+  // Legal inner XML characters, but not starting
   } else if (c == '.' || c == '-' || (c >= '0' && c <= '9')) {
     return 2;
   // Illegal XML characters
@@ -126,14 +127,13 @@ int parseTagName(char *xmlTagNameStart, int &parseEnd) {
     parseEnd++;
   }
 
-  if (parseEnd == 3) {
-    // Cannot be called "XML"
-    if ((ASCII_TO_LOWERCASE(xmlTagNameStart[0]) == 'x') &&
-        (ASCII_TO_LOWERCASE(xmlTagNameStart[1]) == 'm' &&
-        (ASCII_TO_LOWERCASE(xmlTagNameStart[2]) == 'l'))) {
-      parseEnd = 0;
-      return -1;
-    }
+  // Cannot be called "XML"
+  if ((parseEnd == 3) && 
+      (ASCII_TO_LOWERCASE(xmlTagNameStart[0]) == 'x') &&
+      (ASCII_TO_LOWERCASE(xmlTagNameStart[1]) == 'm' &&
+      (ASCII_TO_LOWERCASE(xmlTagNameStart[2]) == 'l'))) {
+    parseEnd = 0;
+    return -1;
   }
   return 0;
 }
@@ -151,14 +151,20 @@ int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
     return -3;
   }
 
-  while (!((xmlTagAttributeStart[parseEnd] == '\"' && xmlTagAttributeStart[parseEnd-1] != '\\') || xmlTagAttributeStart[parseEnd] == '\0')) {
+  int parseAttributeEnd;
+  int status = 0;
+  // Search for a quotation mark. Keep parsing if the quote is escaped and 0-status from parseUntilCharacter().
+  while ((xmlTagAttributeStart[parseEnd-1] == '\\' || xmlTagAttributeStart[parseEnd] != '\"') && !status) {
+    // Go to next character after match to search forward
     parseEnd++;
+    status = parseUntilCharacter(&xmlTagAttributeStart[parseEnd], parseAttributeEnd, '\"');
+    parseEnd += parseAttributeEnd;
+  }
+  if (status) {
+    return -4;
   }
 
-  // Make sure that the ending was not due to null character
-  if (xmlTagAttributeStart[parseEnd] == '\0' && !(xmlTagAttributeStart[parseEnd-1] == '\"' && xmlTagAttributeStart[parseEnd-2] != '\\'))
-    return -4;
-
+  // Move past last quote match
   parseEnd++;
   return 0;
 }
