@@ -19,6 +19,14 @@ XML_Node::XML_Node(char *string, int start, int end) {
   this->string = string;
 }
 
+void XML_Node::getNamePos(int &start, int &length) {
+  // Points to a opening/self-closing tag => second index is start of name
+  start = this->getStart()+1;
+
+  // This should not be able to fail since we already shall have parsed the name successfully!
+  parseTagName(&this->getString()[start], length);
+}
+
 int XML_Node::findNextNode(XML_Node &outNode) {
   return 0;
   outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());

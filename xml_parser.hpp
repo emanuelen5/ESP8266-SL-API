@@ -18,13 +18,19 @@ class XML_Node {
     int findChild(XML_Node &outNode, const char *childName);
     int findNextNode(XML_Node &outNode);
     int findFirstChild(XML_Node &outNode);
+    /**
+     * Returns the start and length of the name in the string
+     * @param start  Start of the node name in the string
+     * @param length Length of the name
+     */
+    void getNamePos(int &start, int &length);
 
-    char *getString() {return string;};
+    inline char *getString() {return string;};
     char *getStartPtr() {return string+start;};
     char *getEndPtr() {return string+end;};
-    int getStart() {return start;};
-    int getEnd() {return end;};
-    int getLength() {return end - start + 1;};
+    inline int getStart() {return start;};
+    inline int getEnd() {return end;};
+    inline int getLength() {return end - start + 1;};
 
   protected:
     XML_Node(char *string, int start, int end);
