@@ -1,6 +1,8 @@
 #ifndef _TEST_COMMON_H_
 #define _TEST_COMMON_H_
 
+extern char msg[];
+extern char xml_string[];
 
 /**
  * Find the index after a match of a strstr match

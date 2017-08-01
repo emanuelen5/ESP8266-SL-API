@@ -3,7 +3,6 @@
 #include "test_common.hpp"
 
 #define RESPONSE_MAX_LENGTH 7000
-extern char *msg;
 FILE *fh_departure, *fh_station;
 static char text_buffer_departure[RESPONSE_MAX_LENGTH], text_buffer_station[RESPONSE_MAX_LENGTH];
 

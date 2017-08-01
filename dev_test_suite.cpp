@@ -1,8 +1,5 @@
 #include "unity_fixture.h"
 
-#define MSG_LENGTH 100
-char msg[MSG_LENGTH];
-
 #define RUN_TESTS(name)
 
 static void runAllDevTests() {

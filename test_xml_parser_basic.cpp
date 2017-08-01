@@ -3,19 +3,6 @@
 #include "test_common.hpp"
 #include <string.h>
 
-extern char *msg;
-static char xml_string[] = 
-  "<NODE_0>"
-    "<NODE_0_0>"
-      "NODE_0_0_VALUE"
-    "</NODE_0_0>"
-    "<NODE_0_1>"
-      "<NODE_0_1_0/>"
-      "<NODE_0_1_1>"
-        "NODE_0_1_1_VALUE"
-      "</NODE_0_1_1>"
-    "</NODE_0_1>"
-  "</NODE_0>";
 static XML_Node xmlNode, xmlNodeFound;
 
 TEST_GROUP(XML_PARSER_BASIC);
