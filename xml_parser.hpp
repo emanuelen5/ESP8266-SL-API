@@ -8,6 +8,7 @@ class XML_Node {
   public:
     XML_Node();
     XML_Node(char *string);
+    static int createNode(XML_Node &outNode, char *string);
 
     /**
      * Finds the outer boundary of a node (including the angle brackets).
@@ -33,9 +34,10 @@ class XML_Node {
     inline int getLength() {return end - start + 1;};
 
   protected:
-    XML_Node(char *string, int start, int end);
     char *string;
     int start, end;
+
+    XML_Node(char *string, int start, int end);
 };
 
 enum E_XML_TAG_TYPE {

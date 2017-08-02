@@ -9,7 +9,7 @@ XML_Node::XML_Node() {
 
 XML_Node::XML_Node(char *string) {
   this->start  = 0;
-  this->end    = strlen(string);
+  this->end    = strlen(string)-1;
   this->string = string;
 }
 
@@ -25,6 +25,10 @@ void XML_Node::getNamePos(int &start, int &length) {
 
   // This should not be able to fail since we already shall have parsed the name successfully!
   parseTagName(&this->getString()[start], length);
+}
+
+int XML_Node::createNode(XML_Node &outNode, char *string) {
+  return 0;
 }
 
 int XML_Node::findNextNode(XML_Node &outNode) {

@@ -15,10 +15,17 @@ TEST_SETUP(XML_PARSER_BASIC) {
 TEST_TEAR_DOWN(XML_PARSER_BASIC) {
 }
 
+TEST(XML_PARSER_BASIC, CreateNode) {
+  status = XML_Node::createNode(xmlNodeFound, xml_string);
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNodeFound.getStart(), "Start index");
+  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string)-1, xmlNodeFound.getEnd(), "End index");
+}
+
 TEST(XML_PARSER_BASIC, ConstructorString) {
   TEST_ASSERT_EQUAL_STRING(xml_string, xmlNode.getString());
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.getStart(), "Start index");
-  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string), xmlNode.getEnd(), "End index");
+  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string)-1, xmlNode.getEnd(), "End index");
 }
 
 TEST(XML_PARSER_BASIC, CanNotFindGibberish) {
@@ -48,6 +55,7 @@ TEST(XML_PARSER_BASIC, NextNode) {
 }
 
 TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
+  RUN_TEST_CASE(XML_PARSER_BASIC, CreateNode);
   RUN_TEST_CASE(XML_PARSER_BASIC, ConstructorString);
   RUN_TEST_CASE(XML_PARSER_BASIC, IndexAfterMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, FirstChild);

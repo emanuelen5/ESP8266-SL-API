@@ -3,12 +3,6 @@
 #include "test_common.hpp"
 #include <string.h>
 
-#define TAG_LENGTH_MAX 50
-static char xml_tag_string[TAG_LENGTH_MAX];
-static enum E_XML_TAG_TYPE tagType;
-static int parseEnd, status;
-#define SET_XML_TAG_STRING(string)   strcpy(xml_tag_string, (string))
-
 TEST_GROUP(XML_PARSER_PARSE_TAG);
 
 TEST_SETUP(XML_PARSER_PARSE_TAG) {

@@ -3,8 +3,7 @@
 #include "test_common.hpp"
 #include <string.h>
 
-#define MSG_LENGTH 100
-char msg[MSG_LENGTH];
+char msg[];
 char xml_string[] = 
   "<NODE_0>"
     "<NODE_0_0>"
@@ -17,6 +16,9 @@ char xml_string[] =
       "</NODE_0_1_1>"
     "</NODE_0_1>"
   "</NODE_0>";
+int parseEnd, status;
+enum E_XML_TAG_TYPE tagType;
+char xml_tag_string[];
 
 int indexAfterMatch(const char *haystack, const char *needle) {
   int matchPos = strstr(haystack, needle) - haystack;
