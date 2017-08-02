@@ -117,6 +117,13 @@ TEST(XML_PARSER_PARSE_TAG, ErrorParseUntilCharacterEarlyEnd) {
   TEST_ASSERT_EQUAL_MESSAGE(10, parseEnd,  "Parse end");
 }
 
+TEST(XML_PARSER_PARSE_TAG, ParseUntilUnescapedCharacter) {
+  SET_XML_TAG_STRING("0123456789\\\"\"  ");
+  status = parseUntilUnescapedCharacter(xml_tag_string, parseEnd, '\"');
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(12, parseEnd,  "Parse end");
+}
+
 TEST_GROUP_RUNNER(XML_PARSER_PARSE_TAG) {
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, OpeningTag);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, SelfClosingTag);
@@ -132,4 +139,5 @@ TEST_GROUP_RUNNER(XML_PARSER_PARSE_TAG) {
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorAttributeEarlyEnding);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ParseUntilCharacter);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorParseUntilCharacterEarlyEnd);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ParseUntilUnescapedCharacter);
 }

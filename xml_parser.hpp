@@ -62,5 +62,6 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
 int parseTagName(char *xmlTagNameStart, int &parseEnd);
 int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd);
 int parseUntilCharacter(char *xmlStart, int &parseEnd, char c);
+int parseUntilUnescapedCharacter(char *xmlStart, int &parseEnd, char c);
 
 #endif //_XML_PARSER_H_

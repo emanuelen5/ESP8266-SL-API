@@ -74,7 +74,7 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
 
   // Parse the name of the XML tag
   int parseTagNameEnd;
-  int status = parseTagName(&xmlTagStart[parseEnd], parseTagNameEnd);
+  int status = parseTagName(xmlTagStart + parseEnd, parseTagNameEnd);
   parseEnd += parseTagNameEnd;
   if (status) {
     tagType = XML_TAG_ERROR_ILLEGAL_NAME;
@@ -85,7 +85,7 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
     // Consume all superfluous white space
     while (xmlTagStart[++parseEnd] == ' ');
     int parseTagAttributeEnd;
-    status = parseTagAttribute(&xmlTagStart[parseEnd], parseTagAttributeEnd);
+    status = parseTagAttribute(xmlTagStart + parseEnd, parseTagAttributeEnd);
     parseEnd += parseTagAttributeEnd;
     if (status) {
       tagType = XML_TAG_ERROR_ILLEGAL_ATTRIBUTE;
@@ -163,34 +163,43 @@ int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
     return -3;
   }
 
-  int parseAttributeEnd;
-  int status = 0;
-  // Search for a quotation mark. Keep parsing if the quote is escaped and 0-status from parseUntilCharacter().
-  while ((xmlTagAttributeStart[parseEnd-1] == '\\' || xmlTagAttributeStart[parseEnd] != '\"') && !status) {
-    // Go to next character after match to search forward
-    parseEnd++;
-    status = parseUntilCharacter(&xmlTagAttributeStart[parseEnd], parseAttributeEnd, '\"');
-    parseEnd += parseAttributeEnd;
-  }
+  int parseAttributeEnd, status;
+  status = parseUntilUnescapedCharacter(xmlTagAttributeStart + parseEnd, parseAttributeEnd, '\"');
+  parseEnd += parseAttributeEnd;
   if (status) {
     return -4;
   }
 
-  // Move past last quote match
+  // Move past the match
   parseEnd++;
   return 0;
 }
 
 int parseUntilCharacter(char *xmlStart, int &parseEnd, char c) {
-  parseEnd = 0;
-  while (xmlStart[parseEnd] != c && xmlStart[parseEnd] != '\0') {
-    parseEnd++;
-  }
-
-  // Make sure that the ending was not due to null character
-  if (xmlStart[parseEnd-1] != c && xmlStart[parseEnd] == '\0') {
+  char *ptr = strchr(xmlStart, c);
+  if (ptr == NULL) {
+    parseEnd = strlen(xmlStart);
     return -1;
+  } else {
+    parseEnd = (int) (ptr - xmlStart);
+    return 0;
+  }
+}
+
+int parseUntilUnescapedCharacter(char *xmlStart, int &parseEnd, char c) {
+  int parseAttributeEnd;
+  int status = parseUntilCharacter(xmlStart, parseAttributeEnd, c);
+  parseEnd = parseAttributeEnd;
+  while ((xmlStart[parseEnd-1] == '\\') && !status) {
+    // Go to next character after match to search forward
+    parseEnd++;
+    status = parseUntilCharacter(xmlStart + parseEnd, parseAttributeEnd, c);
+    parseEnd += parseAttributeEnd;
   }
 
-  return 0;
+  if (status) {
+    return -1;
+  } else {
+    return 0;
+  }
 }
