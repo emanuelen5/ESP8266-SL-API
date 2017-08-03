@@ -2,14 +2,13 @@
 #define _TEST_COMMON_H_
 
 #define MSG_LENGTH 100
-extern char msg[MSG_LENGTH];
+extern char message[MSG_LENGTH];
 extern char xml_string[];
 extern int parseEnd, status;
 extern enum E_XML_TAG_TYPE tagType;
 
 #define TAG_LENGTH_MAX 50
 extern char xml_tag_string[TAG_LENGTH_MAX];
-#define SET_XML_TAG_STRING(string)   strcpy(xml_tag_string, (string))
 
 /**
  * Find the index after a match of a strstr match

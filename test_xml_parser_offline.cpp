@@ -33,9 +33,9 @@ TEST_TEAR_DOWN(OFFLINE_XML_FILES) {
  * @param filepath Path to file
  */
 static void testCanOpenFile(const char *filepath) {
-  sprintf(msg, "Could not file '%s', required for tests", filepath);
+  sprintf(message, "Could not file '%s', required for tests", filepath);
   FILE *fh = getRO_File(filepath);
-  TEST_ASSERT_MESSAGE(fh, msg);
+  TEST_ASSERT_MESSAGE(fh, message);
 }
 
 /**
@@ -56,12 +56,12 @@ void bufferFile(char *text_buffer, FILE *fh, char *fileName) {
   size_t nRead;
 
   nRead = fread((void *) text_buffer, sizeof(char), RESPONSE_MAX_LENGTH, fh);
-  sprintf(msg, "Could not read from %s", fileName);
-  TEST_ASSERT_MESSAGE(nRead > 0, msg);
+  sprintf(message, "Could not read from %s", fileName);
+  TEST_ASSERT_MESSAGE(nRead > 0, message);
 
   nRead = fread((void *) text_buffer, sizeof(char), RESPONSE_MAX_LENGTH, fh);
-  sprintf(msg, "Buffer for %s is too small", fileName);
-  TEST_ASSERT_EQUAL_MESSAGE(0, nRead, msg);
+  sprintf(message, "Buffer for %s is too small", fileName);
+  TEST_ASSERT_EQUAL_MESSAGE(0, nRead, message);
 }
 
 TEST(OFFLINE_XML_FILES, CanReadFiles) {

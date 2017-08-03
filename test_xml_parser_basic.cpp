@@ -10,6 +10,7 @@ TEST_GROUP(XML_PARSER_BASIC);
 TEST_SETUP(XML_PARSER_BASIC) {
   xmlNode = XML_Node(xml_string);
   xmlNodeFound = XML_Node();
+  strcpy(message, "Expected not equal 0 but got 0. Return status");
 }
 
 TEST_TEAR_DOWN(XML_PARSER_BASIC) {
@@ -23,9 +24,8 @@ TEST(XML_PARSER_BASIC, CreateNode) {
 }
 
 TEST(XML_PARSER_BASIC, ErrorCreateNodeMismatchingTags) {
-  char xml_string_temp[] = "<NODE_0></NODE_1>";
-  const char *message = "Expected not equal 0 but got 0. Return status";
-  status = XML_Node::createNode(xmlNodeFound, xml_string_temp);
+  strcpy(xml_tag_string, "<NODE_0></NODE_1>");
+  status = XML_Node::createNode(xmlNodeFound, xml_tag_string);
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, status, message);
 }
 
@@ -35,14 +35,23 @@ TEST(XML_PARSER_BASIC, ConstructorString) {
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string)-1, xmlNode.getEnd(), "End index");
 }
 
-TEST(XML_PARSER_BASIC, CanNotFindGibberish) {
-  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "Gibberish"), "Should not be found!");
+TEST(XML_PARSER_BASIC, ErrorFindChildGibberish) {
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "Gibberish"), message);
 }
 
-TEST(XML_PARSER_BASIC, CanNotFindPartialName) {
-  const char *message = "Expected not equal 0 but got 0. Return status";
+TEST(XML_PARSER_BASIC, ErrorFindChildPartialStart) {
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "NODE_"), message);
-  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "node_0"), message);
+}
+
+TEST(XML_PARSER_BASIC, ErrorFindChildPartialEnd) {
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), message);
+}
+
+TEST(XML_PARSER_BASIC, FindChildFirstIsPartialMatch) {
+  strcpy(xml_tag_string, "<NODE_0><ODE_0></ODE_0></NODE_0>");
+  int status = XML_Node::createNode(xmlNodeFound, xml_tag_string);
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), "Return status");
 }
 
 TEST(XML_PARSER_BASIC, IndexAfterMatch) {
@@ -67,7 +76,9 @@ TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, ConstructorString);
   RUN_TEST_CASE(XML_PARSER_BASIC, IndexAfterMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, FirstChild);
-  RUN_TEST_CASE(XML_PARSER_BASIC, CanNotFindGibberish);
-  RUN_TEST_CASE(XML_PARSER_BASIC, CanNotFindPartialName);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildGibberish);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialStart);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialEnd);
+  RUN_TEST_CASE(XML_PARSER_BASIC, FindChildFirstIsPartialMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, NextNode);
 }

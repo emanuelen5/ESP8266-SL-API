@@ -15,7 +15,7 @@ TEST_TEAR_DOWN(XML_PARSER_PARSE_TAG) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, OpeningTag) {
-  SET_XML_TAG_STRING("<OpeningTag>");
+  strcpy(xml_tag_string, "<OpeningTag>");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
@@ -23,7 +23,7 @@ TEST(XML_PARSER_PARSE_TAG, OpeningTag) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, SelfClosingTag) {
-  SET_XML_TAG_STRING("<SelfClosingTag/>");
+  strcpy(xml_tag_string, "<SelfClosingTag/>");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
@@ -31,7 +31,7 @@ TEST(XML_PARSER_PARSE_TAG, SelfClosingTag) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, ClosingTag) {
-  SET_XML_TAG_STRING("</ClosingTag>");
+  strcpy(xml_tag_string, "</ClosingTag>");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
@@ -39,7 +39,7 @@ TEST(XML_PARSER_PARSE_TAG, ClosingTag) {
 }
  
 TEST(XML_PARSER_PARSE_TAG, ErrorTagStart) {
-  SET_XML_TAG_STRING("Value</MiddleOfNode>");
+  strcpy(xml_tag_string, "Value</MiddleOfNode>");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(-1, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(0, parseEnd, "Parse end");
@@ -47,28 +47,34 @@ TEST(XML_PARSER_PARSE_TAG, ErrorTagStart) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, ErrorTagEnd) {
-  SET_XML_TAG_STRING("<Value/a>");
+  strcpy(xml_tag_string, "<Value/a>");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(-5, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_ERROR_ILLEGAL_ENDING, tagType, "Tag type");
 }
 
 TEST(XML_PARSER_PARSE_TAG, ErrorTagNameXML) {
-  SET_XML_TAG_STRING("<xml/>");
+  strcpy(xml_tag_string, "<xml/>");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(-2, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_ERROR_ILLEGAL_NAME, tagType, "Tag type");
 }
 
 TEST(XML_PARSER_PARSE_TAG, Name) {
-  SET_XML_TAG_STRING("Value/>");
+  strcpy(xml_tag_string, "Value/>");
   status = parseTagName(xml_tag_string, parseEnd);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_tag_string, "Value"), parseEnd, "Parse end");
 }
 
+TEST(XML_PARSER_PARSE_TAG, ErrorName) {
+  strcpy(xml_tag_string, ">IllegalChar");
+  status = parseTagName(xml_tag_string, parseEnd, false);
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, status, "Expected not equal to 0, got 0. Return status");
+}
+
 TEST(XML_PARSER_PARSE_TAG, WithAttribute) {
-  SET_XML_TAG_STRING("<Tag attribute=\"azAZ09.,!@#$%^&*/;'()[]{}|+-_=\">");
+  strcpy(xml_tag_string, "<Tag attribute=\"azAZ09.,!@#$%^&*/;'()[]{}|+-_=\">");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
@@ -76,7 +82,7 @@ TEST(XML_PARSER_PARSE_TAG, WithAttribute) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, WithMultipleAttributes) {
-  SET_XML_TAG_STRING("<Tag attr1=\"value1\" attr2=\"value2\">");
+  strcpy(xml_tag_string, "<Tag attr1=\"value1\" attr2=\"value2\">");
   status = parseTag(xml_tag_string, parseEnd, tagType);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
@@ -84,41 +90,41 @@ TEST(XML_PARSER_PARSE_TAG, WithMultipleAttributes) {
 }
 
 TEST(XML_PARSER_PARSE_TAG, Attribute) {
-  SET_XML_TAG_STRING("attr=\"Value\"");
+  strcpy(xml_tag_string, "attr=\"Value\"");
   status = parseTagAttribute(xml_tag_string, parseEnd);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
 }
 
 TEST(XML_PARSER_PARSE_TAG, AttributeEscapedQuote) {
-  SET_XML_TAG_STRING("attr=\"\\\"Value\\\"\"");
+  strcpy(xml_tag_string, "attr=\"\\\"Value\\\"\"");
   status = parseTagAttribute(xml_tag_string, parseEnd);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
 }
 
 TEST(XML_PARSER_PARSE_TAG, ErrorAttributeEarlyEnding) {
-  SET_XML_TAG_STRING("attr=\"Value\0");
+  strcpy(xml_tag_string, "attr=\"Value\0");
   status = parseTagAttribute(xml_tag_string, parseEnd);
   TEST_ASSERT_EQUAL_MESSAGE(-4, status, "Return status");
 }
 
 TEST(XML_PARSER_PARSE_TAG, ParseUntilCharacter) {
-  SET_XML_TAG_STRING("0123456789\"  ");
+  strcpy(xml_tag_string, "0123456789\"  ");
   status = parseUntilCharacter(xml_tag_string, parseEnd, '\"');
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(10, parseEnd,  "Parse end");
 }
 
 TEST(XML_PARSER_PARSE_TAG, ErrorParseUntilCharacterEarlyEnd) {
-  SET_XML_TAG_STRING("0123456789\0  ");
+  strcpy(xml_tag_string, "0123456789\0  ");
   status = parseUntilCharacter(xml_tag_string, parseEnd, '\"');
   TEST_ASSERT_EQUAL_MESSAGE(-1, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(10, parseEnd,  "Parse end");
 }
 
 TEST(XML_PARSER_PARSE_TAG, ParseUntilUnescapedCharacter) {
-  SET_XML_TAG_STRING("0123456789\\\"\"  ");
+  strcpy(xml_tag_string, "0123456789\\\"\"  ");
   status = parseUntilUnescapedCharacter(xml_tag_string, parseEnd, '\"');
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(12, parseEnd,  "Parse end");
@@ -132,6 +138,7 @@ TEST_GROUP_RUNNER(XML_PARSER_PARSE_TAG) {
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagEnd);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagNameXML);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Name);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorName);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithAttribute);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithMultipleAttributes);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Attribute);

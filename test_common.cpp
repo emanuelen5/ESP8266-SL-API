@@ -3,7 +3,7 @@
 #include "test_common.hpp"
 #include <string.h>
 
-char msg[];
+char message[];
 char xml_string[] = 
   "<NODE_0>"
     "<NODE_0_0>"

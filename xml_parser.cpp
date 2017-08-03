@@ -79,22 +79,39 @@ int XML_Node::findFirstChild(XML_Node &outNode) {
 }
 
 int XML_Node::findChild(XML_Node &outNode, const char *childName) {
-  char *pos = this->getStartPtr();
-  pos = strstr(pos, childName);
-  // Not found
-  if (pos == NULL) {
+  int childNameLength;
+  // Check that the tag name is legal
+  int status = parseTagName(childName, childNameLength, false);
+  bool parsedWholeString = (unsigned) childNameLength == strlen(childName);
+  if (status || !parsedWholeString) {
     return -1;
   }
 
-  int start = pos - this->getStartPtr() - 1;
-  pos = strstr(pos+1, childName);
-  int end = pos - this->getStartPtr() + strlen(childName);
+  char *pos;
+  pos = strstr(this->getStartPtr(), childName);
+  // Not found string
+  if (pos == NULL) {
+    return -2;
+  }
 
-  outNode = XML_Node(this->getString(), start, end);
-  return 0;
+  int start = (int)(pos - this->getStartPtr() - 1); // The index before the name, if name matches
+  if (XML_Node::createNode(outNode, this->getString(), start)) {
+    return -3;
+  }
+
+  // Check that name is exactly the same
+  int nodeNameLength;
+  outNode.getNamePos(start, nodeNameLength);
+  char *nodeNameStart = outNode.getString() + start;
+  if (strncmp(nodeNameStart, childName, childNameLength) ||
+      strncmp(nodeNameStart, childName, nodeNameLength)) {
+    return -4;
+  } else {
+    return 0;
+  }
 }
 
-int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
+int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
   if (xmlTagStart[0] != '<') {
     tagType = XML_TAG_ERROR_ILLEGAL_START_POS;
     parseEnd = 0;
@@ -152,7 +169,7 @@ int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
 
 #define ASCII_TO_LOWERCASE(c)    (((c) >= 'A') && ((c) <= 'Z'))?(c) - ('A' - 'a'):(c)
 
-int categorizeXMLNameCharacter(char c) {
+int categorizeXMLNameCharacter(const char c) {
   // Legal starting XML characters
   if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
     return 1;
@@ -165,7 +182,7 @@ int categorizeXMLNameCharacter(char c) {
   }
 }
 
-int parseTagName(char *xmlTagNameStart, int &parseEnd) {
+int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/) {
   parseEnd = 0;
   if (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd]) != 1) {
     return -1;
@@ -177,7 +194,8 @@ int parseTagName(char *xmlTagNameStart, int &parseEnd) {
   }
 
   // Cannot be called "XML"
-  if ((parseEnd == 3) && 
+  if ((checkIsXML) &&
+      (parseEnd == 3) && 
       (ASCII_TO_LOWERCASE(xmlTagNameStart[0]) == 'x') &&
       (ASCII_TO_LOWERCASE(xmlTagNameStart[1]) == 'm' &&
       (ASCII_TO_LOWERCASE(xmlTagNameStart[2]) == 'l'))) {
@@ -187,7 +205,7 @@ int parseTagName(char *xmlTagNameStart, int &parseEnd) {
   return 0;
 }
 
-int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
+int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
   parseEnd = 0;
   // The name of the attribute follows the same naming convention as the tag name
   if (parseTagName(xmlTagAttributeStart, parseEnd)) {
@@ -212,7 +230,7 @@ int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
   return 0;
 }
 
-int parseUntilCharacter(char *xmlStart, int &parseEnd, char c) {
+int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c) {
   char *ptr = strchr(xmlStart, c);
   if (ptr == NULL) {
     parseEnd = strlen(xmlStart);
@@ -223,7 +241,7 @@ int parseUntilCharacter(char *xmlStart, int &parseEnd, char c) {
   }
 }
 
-int parseUntilUnescapedCharacter(char *xmlStart, int &parseEnd, char c) {
+int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c) {
   int parseAttributeEnd;
   int status = parseUntilCharacter(xmlStart, parseAttributeEnd, c);
   parseEnd = parseAttributeEnd;

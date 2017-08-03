@@ -65,10 +65,10 @@ enum E_XML_TAG_TYPE {
  * @param  tagType      Type of tag that was parsed
  * @return              Status, non-zero if error
  */
-int parseTag(char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
-int parseTagName(char *xmlTagNameStart, int &parseEnd);
-int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd);
-int parseUntilCharacter(char *xmlStart, int &parseEnd, char c);
-int parseUntilUnescapedCharacter(char *xmlStart, int &parseEnd, char c);
+int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
+int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true);
+int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd);
+int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c);
+int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c);
 
 #endif //_XML_PARSER_H_
