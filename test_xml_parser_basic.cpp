@@ -22,6 +22,13 @@ TEST(XML_PARSER_BASIC, CreateNode) {
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string)-1, xmlNodeFound.getEnd(), "End index");
 }
 
+TEST(XML_PARSER_BASIC, ErrorCreateNodeMismatchingTags) {
+  char xml_string_temp[] = "<NODE_0></NODE_1>";
+  const char *message = "Expected not equal 0 but got 0. Return status";
+  status = XML_Node::createNode(xmlNodeFound, xml_string_temp);
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, status, message);
+}
+
 TEST(XML_PARSER_BASIC, ConstructorString) {
   TEST_ASSERT_EQUAL_STRING(xml_string, xmlNode.getString());
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.getStart(), "Start index");
@@ -33,7 +40,7 @@ TEST(XML_PARSER_BASIC, CanNotFindGibberish) {
 }
 
 TEST(XML_PARSER_BASIC, CanNotFindPartialName) {
-  const char *message = "Node should not be found! Expected not equal 0 but got 0";
+  const char *message = "Expected not equal 0 but got 0. Return status";
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "NODE_"), message);
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "node_0"), message);
 }
@@ -56,6 +63,7 @@ TEST(XML_PARSER_BASIC, NextNode) {
 
 TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, CreateNode);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorCreateNodeMismatchingTags);
   RUN_TEST_CASE(XML_PARSER_BASIC, ConstructorString);
   RUN_TEST_CASE(XML_PARSER_BASIC, IndexAfterMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, FirstChild);

@@ -8,7 +8,14 @@ class XML_Node {
   public:
     XML_Node();
     XML_Node(char *string);
-    static int createNode(XML_Node &outNode, char *string);
+    /**
+     * Creates a node that starts at the given position in a string
+     * @param  outNode Created node unless failure
+     * @param  string  String pointing to where node starts (unless start position is given)
+     * @param  start   Start of the node within the string [Optional]
+     * @return         Non-zero if error
+     */
+    static int createNode(XML_Node &outNode, char *string, int start = 0);
 
     /**
      * Finds the outer boundary of a node (including the angle brackets).

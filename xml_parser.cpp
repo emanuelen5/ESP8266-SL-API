@@ -24,10 +24,47 @@ void XML_Node::getNamePos(int &start, int &length) {
   start = this->getStart()+1;
 
   // This should not be able to fail since we already shall have parsed the name successfully!
-  parseTagName(&this->getString()[start], length);
+  parseTagName(this->getString() + start, length);
 }
 
-int XML_Node::createNode(XML_Node &outNode, char *string) {
+int XML_Node::createNode(XML_Node &outNode, char *string, int start /*=0*/) {
+  // Check that we point at the start of a node
+  int parseEnd = start, parseEndTemp, depth = 0;
+  enum E_XML_TAG_TYPE tagType;
+  int status = parseTag(string + parseEnd, parseEndTemp, tagType);
+  parseEnd += parseEndTemp;
+  if (!status && tagType == XML_TAG_OPENING) {
+    depth += 1;
+  } else if (!status && tagType == XML_TAG_SELF_CLOSING) {
+  } else {
+    return -1;
+  }
+
+  // Stop parsing when the corresponding closing tag has been found
+  while (depth != 0 && !status) {
+    // Skip all the inner text of a node (angle brackets in inner text should be "&lt;")
+    status = parseUntilCharacter(string + parseEnd, parseEndTemp, '<');
+    parseEnd += parseEndTemp;
+    if (status) { // No angle bracket found
+      return -2;
+    }
+
+    status = parseTag(string + parseEnd, parseEndTemp, tagType);
+    parseEnd += parseEndTemp;
+    if (status) { // Error while parsing the tag
+      return -3;
+    } else if (tagType == XML_TAG_OPENING) {
+      depth += 1;
+    } else if (tagType == XML_TAG_SELF_CLOSING) {
+      // Depth stays the same if self-closing
+    } else if (tagType == XML_TAG_CLOSING) {
+      depth -= 1;
+    } else {
+      return -4;
+    }
+  }
+
+  outNode = XML_Node(string, start, parseEnd-1);
   return 0;
 }
 
