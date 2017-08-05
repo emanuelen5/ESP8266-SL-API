@@ -24,6 +24,7 @@ TEST(XML_PARSER_BASIC, CreateNode) {
 }
 
 TEST(XML_PARSER_BASIC, ErrorCreateNodeMismatchingTags) {
+  TEST_IGNORE();
   strcpy(xml_tag_string, "<NODE_0></NODE_1>");
   status = XML_Node::createNode(xmlNodeFound, xml_tag_string);
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, status, message);
@@ -48,6 +49,7 @@ TEST(XML_PARSER_BASIC, ErrorFindChildPartialEnd) {
 }
 
 TEST(XML_PARSER_BASIC, FindChildFirstIsPartialMatch) {
+  TEST_IGNORE();
   strcpy(xml_tag_string, "<NODE_0><ODE_0></ODE_0></NODE_0>");
   TEST_ASSERT_EQUAL_MESSAGE(0, XML_Node::createNode(xmlNodeFound, xml_tag_string), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), "Return status");
@@ -59,11 +61,13 @@ TEST(XML_PARSER_BASIC, IndexAfterMatch) {
 }
 
 TEST(XML_PARSER_BASIC, FirstChild) {
+  TEST_IGNORE();
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findFirstChild(xmlNodeFound), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "<NODE_0>"), xmlNodeFound.getStart(), "Index position");
 }
 
 TEST(XML_PARSER_BASIC, NextNode) {
+  TEST_IGNORE();
   xmlNode.findFirstChild(xmlNode);
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findNextNode(xmlNodeFound), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "</NODE_0_0>"), xmlNodeFound.getStart(), "Index position");
