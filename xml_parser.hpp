@@ -6,6 +6,17 @@
  */
 class XML_Node {
   public:
+    enum E_TAG_TYPE {
+      ERROR_UNDEFINED          = -1,
+      ERROR_ILLEGAL_START_POS  = -2,
+      ERROR_ILLEGAL_NAME       = -3,
+      ERROR_ILLEGAL_ATTRIBUTE  = -4,
+      ERROR_ILLEGAL_ENDING     = -5,
+      SELF_CLOSING             =  1,
+      OPENING                  =  2,
+      CLOSING                  =  3,
+    };
+
     XML_Node();
     /**
      * Creates a node that starts at the given position in a string
@@ -45,30 +56,19 @@ class XML_Node {
 
     XML_Node(char *string);
     XML_Node(char *string, int start, int end);
-};
 
-enum E_XML_TAG_TYPE {
-  XML_TAG_ERROR_UNDEFINED          = -1,
-  XML_TAG_ERROR_ILLEGAL_START_POS  = -2,
-  XML_TAG_ERROR_ILLEGAL_NAME       = -3,
-  XML_TAG_ERROR_ILLEGAL_ATTRIBUTE  = -4,
-  XML_TAG_ERROR_ILLEGAL_ENDING     = -5,
-  XML_TAG_SELF_CLOSING             =  1,
-  XML_TAG_OPENING                  =  2,
-  XML_TAG_CLOSING                  =  3,
+    /**
+     * Parses a tag for its type. The tag can contain attributes, bust must follow the name rules for XML.
+     * @param  xmlTagStart  XML content
+     * @param  parseEnd     End position (index after tag close)
+     * @param  tagType      Type of tag that was parsed
+     * @return              Status, non-zero if error
+     */
+    static int parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType);
+    static int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true);
+    static int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd);
+    static int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c);
+    static int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c);
 };
-
-/**
- * Parses a tag for its type. The tag can contain attributes, bust must follow the name rules for XML.
- * @param  xmlTagStart  XML content
- * @param  parseEnd     End position (index after tag close)
- * @param  tagType      Type of tag that was parsed
- * @return              Status, non-zero if error
- */
-int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
-int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true);
-int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd);
-int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c);
-int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c);
 
 #endif //_XML_PARSER_H_

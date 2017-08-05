@@ -17,7 +17,7 @@ char xml_string[] =
     "</NODE_0_1>"
   "</NODE_0>";
 int parseEnd, status;
-enum E_XML_TAG_TYPE tagType;
+enum XML_Node_Test::E_TAG_TYPE tagType;
 char xml_tag_string[];
 
 int indexAfterMatch(const char *haystack, const char *needle) {

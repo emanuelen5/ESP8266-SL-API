@@ -47,12 +47,12 @@ void XML_Node::getNamePos(int &start, int &length) {
 int XML_Node::createNode(XML_Node &outNode, char *string, int start /*=0*/) {
   // Check that we point at the start of a node
   int parseEnd = start, parseEndTemp, depth = 0;
-  enum E_XML_TAG_TYPE tagType;
+  enum XML_Node::E_TAG_TYPE tagType;
   int status = parseTag(string + parseEnd, parseEndTemp, tagType);
   parseEnd += parseEndTemp;
-  if (!status && tagType == XML_TAG_OPENING) {
+  if (!status && tagType == OPENING) {
     depth += 1;
-  } else if (!status && tagType == XML_TAG_SELF_CLOSING) {
+  } else if (!status && tagType == SELF_CLOSING) {
   } else {
     return -1;
   }
@@ -71,11 +71,11 @@ int XML_Node::createNode(XML_Node &outNode, char *string, int start /*=0*/) {
     parseEnd += parseEndTemp;
     if (status) { // Error while parsing the tag
       return -3;
-    } else if (tagType == XML_TAG_OPENING) {
+    } else if (tagType == OPENING) {
       depth += 1;
-    } else if (tagType == XML_TAG_SELF_CLOSING) {
+    } else if (tagType == SELF_CLOSING) {
       // Depth stays the same if self-closing
-    } else if (tagType == XML_TAG_CLOSING) {
+    } else if (tagType == CLOSING) {
       depth -= 1;
     } else {
       return -4;
@@ -129,18 +129,18 @@ int XML_Node::findChild(XML_Node &outNode, const char *childName) {
   }
 }
 
-int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType) {
+int XML_Node::parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
   if (xmlTagStart[0] != '<') {
-    tagType = XML_TAG_ERROR_ILLEGAL_START_POS;
+    tagType = ERROR_ILLEGAL_START_POS;
     parseEnd = 0;
     return -1;
   } else {
-    tagType = XML_TAG_ERROR_UNDEFINED; // Default assignment
+    tagType = ERROR_UNDEFINED; // Default assignment
   }
 
   parseEnd = 1;
   if (xmlTagStart[parseEnd] == '/') {
-    tagType = XML_TAG_CLOSING;
+    tagType = CLOSING;
     parseEnd++;
   }
 
@@ -149,7 +149,7 @@ int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagTyp
   int status = parseTagName(xmlTagStart + parseEnd, parseTagNameEnd);
   parseEnd += parseTagNameEnd;
   if (status) {
-    tagType = XML_TAG_ERROR_ILLEGAL_NAME;
+    tagType = ERROR_ILLEGAL_NAME;
     return -2;
   }
 
@@ -161,7 +161,7 @@ int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagTyp
     status = parseTagAttribute(xmlTagStart + parseEnd, parseTagAttributeEnd);
     parseEnd += parseTagAttributeEnd;
     if (status) {
-      tagType = XML_TAG_ERROR_ILLEGAL_ATTRIBUTE;
+      tagType = ERROR_ILLEGAL_ATTRIBUTE;
       return -3;
     }
     // Consume all superfluous white space
@@ -171,26 +171,26 @@ int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagTyp
   }
 
   // Check the ending
-  if (tagType == XML_TAG_CLOSING && xmlTagStart[parseEnd] != '>') {
-    tagType = XML_TAG_ERROR_ILLEGAL_ENDING;
+  if (tagType == CLOSING && xmlTagStart[parseEnd] != '>') {
+    tagType = ERROR_ILLEGAL_ENDING;
     return -4;
   } else if (xmlTagStart[parseEnd] == '/') {
-    tagType = XML_TAG_SELF_CLOSING;
+    tagType = SELF_CLOSING;
     parseEnd++;
   }
 
   if (xmlTagStart[parseEnd] != '>') {
-    tagType = XML_TAG_ERROR_ILLEGAL_ENDING;
+    tagType = ERROR_ILLEGAL_ENDING;
     return -5;
-  } else if (tagType != XML_TAG_SELF_CLOSING && tagType != XML_TAG_CLOSING) {
-    tagType = XML_TAG_OPENING;
+  } else if (tagType != SELF_CLOSING && tagType != CLOSING) {
+    tagType = OPENING;
   }
   parseEnd++;
 
   return 0;
 }
 
-int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/, bool allowSubspace /*=true*/) {
+int XML_Node::parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/, bool allowSubspace /*=true*/) {
   parseEnd = 0;
   if (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd]) != 1) {
     return -1;
@@ -224,7 +224,7 @@ int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*=
   return 0;
 }
 
-int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
+int XML_Node::parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
   int parseAttributeEnd, status;
   parseEnd = 0;
   // The name of the attribute follows the same naming convention as the tag name
@@ -249,7 +249,7 @@ int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
   return 0;
 }
 
-int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c) {
+int XML_Node::parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c) {
   char *ptr = strchr(xmlStart, c);
   if (ptr == NULL) {
     parseEnd = strlen(xmlStart);
@@ -260,7 +260,7 @@ int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c) {
   }
 }
 
-int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c) {
+int XML_Node::parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c) {
   int parseAttributeEnd;
   int status = parseUntilCharacter(xmlStart, parseAttributeEnd, c);
   parseEnd = parseAttributeEnd;
