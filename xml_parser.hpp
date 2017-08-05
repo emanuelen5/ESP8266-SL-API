@@ -7,13 +7,12 @@
 class XML_Node {
   public:
     XML_Node();
-    XML_Node(char *string);
     /**
      * Creates a node that starts at the given position in a string
-     * @param  outNode Created node unless failure
-     * @param  string  String pointing to where node starts (unless start position is given)
-     * @param  start   Start of the node within the string [Optional]
-     * @return         Non-zero if error
+     * @param[out]  outNode Created node unless failure
+     * @param [in]  string  String pointing to where node starts (unless start position is given)
+     * @param[in]   start   Start of the node within the string [Optional]
+     * @return      Non-zero if error
      */
     static int createNode(XML_Node &outNode, char *string, int start = 0);
 
@@ -28,8 +27,8 @@ class XML_Node {
     int findFirstChild(XML_Node &outNode);
     /**
      * Returns the start and length of the name in the string
-     * @param start  Start of the node name in the string
-     * @param length Length of the name
+     * @param[out] start  Start of the node name in the string
+     * @param[out] length Length of the name
      */
     void getNamePos(int &start, int &length);
 
@@ -44,6 +43,7 @@ class XML_Node {
     char *string;
     int start, end;
 
+    XML_Node(char *string);
     XML_Node(char *string, int start, int end);
 };
 
@@ -66,7 +66,7 @@ enum E_XML_TAG_TYPE {
  * @return              Status, non-zero if error
  */
 int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagType);
-int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true);
+int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true);
 int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd);
 int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c);
 int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c);

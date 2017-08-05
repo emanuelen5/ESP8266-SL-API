@@ -1,6 +1,23 @@
 #include "xml_parser.hpp"
 #include <string.h>
 
+#define ASCII_TO_LOWERCASE(c)    (((c) >= 'A') && ((c) <= 'Z'))?(c) - ('A' - 'a'):(c)
+
+int categorizeXMLNameCharacter(const char c) {
+  // Legal starting XML characters
+  if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+    return 1;
+  // Legal inner XML characters, but not starting
+  } else if (c == '.' || c == '-' || (c >= '0' && c <= '9')) {
+    return 2;
+  // Illegal XML characters
+  } else {
+    return 0;
+  }
+}
+
+
+
 XML_Node::XML_Node() {
   this->start  = 0;
   this->end    = 0;
@@ -49,6 +66,7 @@ int XML_Node::createNode(XML_Node &outNode, char *string, int start /*=0*/) {
       return -2;
     }
 
+
     status = parseTag(string + parseEnd, parseEndTemp, tagType);
     parseEnd += parseEndTemp;
     if (status) { // Error while parsing the tag
@@ -79,8 +97,8 @@ int XML_Node::findFirstChild(XML_Node &outNode) {
 }
 
 int XML_Node::findChild(XML_Node &outNode, const char *childName) {
-  int childNameLength;
   // Check that the tag name is legal
+  int childNameLength;
   int status = parseTagName(childName, childNameLength, false);
   bool parsedWholeString = (unsigned) childNameLength == strlen(childName);
   if (status || !parsedWholeString) {
@@ -136,14 +154,19 @@ int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagTyp
   }
 
   while (xmlTagStart[parseEnd] == ' ') {
-    // Consume all superfluous white space
-    while (xmlTagStart[++parseEnd] == ' ');
+    parseEnd++;
+  }
+  while (categorizeXMLNameCharacter(xmlTagStart[parseEnd])) {
     int parseTagAttributeEnd;
     status = parseTagAttribute(xmlTagStart + parseEnd, parseTagAttributeEnd);
     parseEnd += parseTagAttributeEnd;
     if (status) {
       tagType = XML_TAG_ERROR_ILLEGAL_ATTRIBUTE;
       return -3;
+    }
+    // Consume all superfluous white space
+    while (xmlTagStart[parseEnd] == ' ') {
+      parseEnd++;
     }
   }
 
@@ -167,22 +190,7 @@ int parseTag(const char *xmlTagStart, int &parseEnd, enum E_XML_TAG_TYPE &tagTyp
   return 0;
 }
 
-#define ASCII_TO_LOWERCASE(c)    (((c) >= 'A') && ((c) <= 'Z'))?(c) - ('A' - 'a'):(c)
-
-int categorizeXMLNameCharacter(const char c) {
-  // Legal starting XML characters
-  if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-    return 1;
-  // Legal inner XML characters, but not starting
-  } else if (c == '.' || c == '-' || (c >= '0' && c <= '9')) {
-    return 2;
-  // Illegal XML characters
-  } else {
-    return 0;
-  }
-}
-
-int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/) {
+int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/, bool allowSubspace /*=true*/) {
   parseEnd = 0;
   if (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd]) != 1) {
     return -1;
@@ -191,6 +199,17 @@ int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*=
   parseEnd = 1;
   while (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd])) {
     parseEnd++;
+  }
+
+  // Check if it is a subspace
+  if (allowSubspace && xmlTagNameStart[parseEnd] == ':') {
+    int parseAttributeEnd, status;
+    parseEnd++;
+    status = parseTagName(xmlTagNameStart + parseEnd, parseAttributeEnd, checkIsXML, false);
+    parseEnd += parseAttributeEnd;
+    if (status) {
+      return -2;
+    }
   }
 
   // Cannot be called "XML"
@@ -206,6 +225,7 @@ int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*=
 }
 
 int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
+  int parseAttributeEnd, status;
   parseEnd = 0;
   // The name of the attribute follows the same naming convention as the tag name
   if (parseTagName(xmlTagAttributeStart, parseEnd)) {
@@ -213,16 +233,15 @@ int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
   }
 
   if (xmlTagAttributeStart[parseEnd++] != '=') {
-    return -2;
-  } else if (xmlTagAttributeStart[parseEnd++] != '\"') {
     return -3;
+  } else if (xmlTagAttributeStart[parseEnd++] != '\"') {
+    return -4;
   }
 
-  int parseAttributeEnd, status;
   status = parseUntilUnescapedCharacter(xmlTagAttributeStart + parseEnd, parseAttributeEnd, '\"');
   parseEnd += parseAttributeEnd;
   if (status) {
-    return -4;
+    return -5;
   }
 
   // Move past the match

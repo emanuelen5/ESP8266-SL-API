@@ -67,6 +67,13 @@ TEST(XML_PARSER_PARSE_TAG, Name) {
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_tag_string, "Value"), parseEnd, "Parse end");
 }
 
+TEST(XML_PARSER_PARSE_TAG, NameSubspace) {
+  strcpy(xml_tag_string, "tag:subspace");
+  status = parseTagName(xml_tag_string, parseEnd, false, true);
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
+}
+
 TEST(XML_PARSER_PARSE_TAG, ErrorName) {
   strcpy(xml_tag_string, ">IllegalChar");
   status = parseTagName(xml_tag_string, parseEnd, false);
@@ -79,6 +86,14 @@ TEST(XML_PARSER_PARSE_TAG, WithAttribute) {
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
   TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_OPENING, tagType, "Tag type");
+}
+
+TEST(XML_PARSER_PARSE_TAG, WithAttributeAndSpace) {
+  strcpy(xml_tag_string, "<Tag attribute=\"value\" />");
+  status = parseTag(xml_tag_string, parseEnd, tagType);
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_tag_string), parseEnd,  "Parse end");
+  TEST_ASSERT_EQUAL_MESSAGE(XML_TAG_SELF_CLOSING, tagType, "Tag type");
 }
 
 TEST(XML_PARSER_PARSE_TAG, WithMultipleAttributes) {
@@ -106,7 +121,7 @@ TEST(XML_PARSER_PARSE_TAG, AttributeEscapedQuote) {
 TEST(XML_PARSER_PARSE_TAG, ErrorAttributeEarlyEnding) {
   strcpy(xml_tag_string, "attr=\"Value\0");
   status = parseTagAttribute(xml_tag_string, parseEnd);
-  TEST_ASSERT_EQUAL_MESSAGE(-4, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(-5, status, "Return status");
 }
 
 TEST(XML_PARSER_PARSE_TAG, ParseUntilCharacter) {
@@ -138,8 +153,10 @@ TEST_GROUP_RUNNER(XML_PARSER_PARSE_TAG) {
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagEnd);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorTagNameXML);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Name);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, NameSubspace);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, ErrorName);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithAttribute);
+  RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithAttributeAndSpace);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, WithMultipleAttributes);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, Attribute);
   RUN_TEST_CASE(XML_PARSER_PARSE_TAG, AttributeEscapedQuote);

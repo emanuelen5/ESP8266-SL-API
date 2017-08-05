@@ -4,7 +4,9 @@
 
 #define RESPONSE_MAX_LENGTH 7000
 FILE *fh_departure, *fh_station;
-static char text_buffer_departure[RESPONSE_MAX_LENGTH], text_buffer_station[RESPONSE_MAX_LENGTH];
+static char text_buffer_departure[RESPONSE_MAX_LENGTH+1], text_buffer_station[RESPONSE_MAX_LENGTH+1];
+
+static XML_Node xmlNode, xmlNodeFound;
 
 TEST_GROUP(OFFLINE_XML_FILES);
 
@@ -58,7 +60,9 @@ void bufferFile(char *text_buffer, FILE *fh, char *fileName) {
   nRead = fread((void *) text_buffer, sizeof(char), RESPONSE_MAX_LENGTH, fh);
   sprintf(message, "Could not read from %s", fileName);
   TEST_ASSERT_MESSAGE(nRead > 0, message);
+  text_buffer[nRead] = '\0';
 
+  // Try to read again (should return 0 read if whole file was parsed correctly)
   nRead = fread((void *) text_buffer, sizeof(char), RESPONSE_MAX_LENGTH, fh);
   sprintf(message, "Buffer for %s is too small", fileName);
   TEST_ASSERT_EQUAL_MESSAGE(0, nRead, message);
@@ -71,15 +75,16 @@ TEST(OFFLINE_XML_FILES, CanReadFiles) {
 
 TEST(OFFLINE_XML_FILES, CanFindStatusCode) {
   int status;
-  XML_Node xmlNode;
 
-  xmlNode = XML_Node(text_buffer_departure);
+  status = XML_Node::createNode(xmlNode, text_buffer_departure);
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Creating root node");
   status = xmlNode.findChild(xmlNode, "StatusCode");
   TEST_ASSERT_EQUAL(0, status);
   TEST_ASSERT_EQUAL(121, xmlNode.getStart());
   TEST_ASSERT_EQUAL(146, xmlNode.getEnd());
 
-  xmlNode = XML_Node(text_buffer_station);
+  status = XML_Node::createNode(xmlNode, text_buffer_station);
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Creating root node");
   status = xmlNode.findChild(xmlNode, "StatusCode");
   TEST_ASSERT_EQUAL(0, status);
   TEST_ASSERT_EQUAL(121, xmlNode.getStart());

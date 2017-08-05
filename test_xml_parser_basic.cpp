@@ -8,7 +8,7 @@ static XML_Node xmlNode, xmlNodeFound;
 TEST_GROUP(XML_PARSER_BASIC);
 
 TEST_SETUP(XML_PARSER_BASIC) {
-  xmlNode = XML_Node(xml_string);
+  status = XML_Node::createNode(xmlNode, xml_string);
   xmlNodeFound = XML_Node();
   strcpy(message, "Expected not equal 0 but got 0. Return status");
 }
@@ -49,8 +49,7 @@ TEST(XML_PARSER_BASIC, ErrorFindChildPartialEnd) {
 
 TEST(XML_PARSER_BASIC, FindChildFirstIsPartialMatch) {
   strcpy(xml_tag_string, "<NODE_0><ODE_0></ODE_0></NODE_0>");
-  int status = XML_Node::createNode(xmlNodeFound, xml_tag_string);
-  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(0, XML_Node::createNode(xmlNodeFound, xml_tag_string), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), "Return status");
 }
 
