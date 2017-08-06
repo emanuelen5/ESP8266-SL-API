@@ -44,6 +44,8 @@ class XML_Node {
     void getNamePos(int &start, int &length);
     void getInnerXML(int &start, int &length); // Inner part = between tags
 
+    void print();
+
     inline char *getString() {return string;};
     char *getStartPtr() {return string+start;};
     char *getEndPtr() {return string+end;};

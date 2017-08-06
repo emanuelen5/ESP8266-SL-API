@@ -38,8 +38,14 @@ TEST(XML_PARSER_BASIC, ConstructorString) {
 
 TEST(XML_PARSER_BASIC, FindChild) {
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "NODE_0_0"), "Return status");
+  TEST_ASSERT_EQUAL_PTR_MESSAGE(xmlNodeFound.getString(), xml_string, "String unaltered");
   TEST_ASSERT_EQUAL_MESSAGE(indexAtMatch(xml_string, "<NODE_0_0>"), xmlNodeFound.getStart(), "Start position");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "</NODE_0_0>")-1, xmlNodeFound.getEnd(), "End position");
+}
+
+TEST(XML_PARSER_BASIC, ErrorFindChildNotWithinThisNode) {
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNode, "NODE_0_0"), "Creating first node");
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "NODE_0_1_0"), "Should not find child outside of child");
 }
 
 TEST(XML_PARSER_BASIC, ErrorFindChildGibberish) {
@@ -55,9 +61,8 @@ TEST(XML_PARSER_BASIC, ErrorFindChildPartialEnd) {
 }
 
 TEST(XML_PARSER_BASIC, FindChildFirstIsPartialMatch) {
-  TEST_IGNORE();
   strcpy(xml_tag_string, "<NODE_0><ODE_0></ODE_0></NODE_0>");
-  TEST_ASSERT_EQUAL_MESSAGE(0, XML_Node::createNode(xmlNodeFound, xml_tag_string), "createNode return status");
+  TEST_ASSERT_EQUAL_MESSAGE(0, XML_Node::createNode(xmlNode, xml_tag_string), "createNode return status");
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), "findChild return status");
 }
 
@@ -105,6 +110,7 @@ TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, IndexAfterMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, FirstChild);
   RUN_TEST_CASE(XML_PARSER_BASIC, FindChild);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildNotWithinThisNode);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildGibberish);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialStart);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialEnd);

@@ -8,6 +8,7 @@ char xml_string[] =
   "<NODE_0>"
     "<NODE_0_0>"
       "NODE_0_0_VALUE"
+      "<NODE_0_0_0/>"
     "</NODE_0_0>"
     "<NODE_0_1>"
       "<NODE_0_1_0/>"

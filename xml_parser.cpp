@@ -1,5 +1,6 @@
 #include "xml_parser.hpp"
 #include <string.h>
+#include <stdio.h>
 
 #define ASCII_TO_LOWERCASE(c)    (((c) >= 'A') && ((c) <= 'Z'))?(c) - ('A' - 'a'):(c)
 
@@ -105,26 +106,32 @@ int XML_Node::findChild(XML_Node &outNode, const char *childName) {
     return -1;
   }
 
-  char *pos;
-  pos = strstr(this->getStartPtr(), childName);
-  // Not found string
-  if (pos == NULL) {
-    return -2;
-  }
+  char *pos = this->getStartPtr();
+  do {
+    pos = strstr(pos+1, childName);
+    // Not found string
+    if (pos == NULL) {
+      return -2;
+    } else if (pos >= this->getEndPtr()) {
+      return -3;
+    }
+  } while (pos[-1] != '<' || categorizeXMLNameCharacter(pos[childNameLength]));
 
-  int start = (int)(pos - this->getStartPtr() - 1); // The index before the name, if name matches
-  if (XML_Node::createNode(outNode, this->getString(), start)) {
-    return -3;
+  int start = (int)(pos - this->getString() - 1); // The index before the name, if name matches
+  XML_Node tempOutNode; // Only overwrite on succes
+  if (XML_Node::createNode(tempOutNode, this->getString(), start)) {
+    return -4;
   }
 
   // Check that name is exactly the same
   int nodeNameLength;
-  outNode.getNamePos(start, nodeNameLength);
-  char *nodeNameStart = outNode.getString() + start;
+  tempOutNode.getNamePos(start, nodeNameLength);
+  char *nodeNameStart = tempOutNode.getString() + start;
   if (strncmp(nodeNameStart, childName, childNameLength) ||
       strncmp(nodeNameStart, childName, nodeNameLength)) {
-    return -4;
+    return -5;
   } else {
+    outNode = tempOutNode;
     return 0;
   }
 }
@@ -144,6 +151,10 @@ void XML_Node::getInnerXML(int &start, int &length) {
       length--;
     }
   }
+}
+
+void XML_Node::print() {
+  fwrite(this->getStartPtr(), sizeof(char), this->getLength(), stdout);
 }
 
 int XML_Node::parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
