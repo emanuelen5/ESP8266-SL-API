@@ -1,12 +1,13 @@
 #include "unity_fixture.h"
 #include "xml_parser.hpp"
 #include "test_common.hpp"
+#include <string.h>
 
 #define RESPONSE_MAX_LENGTH 7000
 FILE *fh_departure, *fh_station;
 static char text_buffer_departure[RESPONSE_MAX_LENGTH+1], text_buffer_station[RESPONSE_MAX_LENGTH+1];
 
-static XML_Node xmlNodeStation, xmlNodeDeparture, xmlNode, xmlNodeFound;
+static XML_Node xmlNode_station, xmlNode_departure, xmlNode, xmlNodeFound;
 
 TEST_GROUP(OFFLINE_XML_FILES);
 
@@ -57,23 +58,33 @@ TEST(OFFLINE_XML_FILES, CanReadFiles) {
 }
 
 TEST(OFFLINE_XML_FILES, CanParseFilesAsXML) {
-  status = XML_Node::createNode(xmlNodeDeparture, text_buffer_departure);
+  status = XML_Node::createNode(xmlNode_departure, text_buffer_departure);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Creating departure root node");
   
-  status = XML_Node::createNode(xmlNodeStation, text_buffer_station);
+  status = XML_Node::createNode(xmlNode_station, text_buffer_station);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Creating departure root node");
+}
+
+#define STATUS_IS_ZERO(NAME) statusIsZero(xmlNode_##NAME)
+void statusIsZero(XML_Node &xmlNode) {
+  int status;
+  status = xmlNode.findChild(xmlNodeFound, "StatusCode");
+  TEST_ASSERT_EQUAL(0, status);
+  TEST_ASSERT_EQUAL_MESSAGE(121, xmlNodeFound.getStart(), "Start position");
+  TEST_ASSERT_EQUAL_MESSAGE(146, xmlNodeFound.getEnd(), "End position");
+
+  int start = -1, length = -1;
+  xmlNodeFound.getInnerXML(start, length);
+  TEST_ASSERT_EQUAL_MESSAGE(strlen("0"), length, "Inner length");
+  char *innerXMLStart = xmlNodeFound.getString() + start;
+  TEST_ASSERT_EQUAL_MESSAGE(0, strncmp("0", innerXMLStart, length), "Inner XML is '0'");
 }
 
 TEST(OFFLINE_XML_FILES, Departure_StatusCodeIsZero) {
-  int status;
-  status = xmlNodeDeparture.findChild(xmlNodeDeparture, "StatusCode");
-  TEST_ASSERT_EQUAL(0, status);
+  STATUS_IS_ZERO(departure);
 }
-
 TEST(OFFLINE_XML_FILES, Station_StatusCodeIsZero) {
-  int status;
-  status = xmlNodeStation.findChild(xmlNodeStation, "StatusCode");
-  TEST_ASSERT_EQUAL(0, status);
+  STATUS_IS_ZERO(station);
 }
 
 TEST_GROUP_RUNNER(OFFLINE_XML_FILES) {

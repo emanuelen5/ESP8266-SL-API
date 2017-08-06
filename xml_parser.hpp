@@ -42,6 +42,7 @@ class XML_Node {
      * @param[out] length Length of the name
      */
     void getNamePos(int &start, int &length);
+    void getInnerXML(int &start, int &length); // Inner part = between tags
 
     inline char *getString() {return string;};
     char *getStartPtr() {return string+start;};

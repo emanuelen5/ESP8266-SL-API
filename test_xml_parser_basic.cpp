@@ -36,6 +36,12 @@ TEST(XML_PARSER_BASIC, ConstructorString) {
   TEST_ASSERT_EQUAL_MESSAGE(strlen(xml_string)-1, xmlNode.getEnd(), "End index");
 }
 
+TEST(XML_PARSER_BASIC, FindChild) {
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "NODE_0_0"), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAtMatch(xml_string, "<NODE_0_0>"), xmlNodeFound.getStart(), "Start position");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "</NODE_0_0>")-1, xmlNodeFound.getEnd(), "End position");
+}
+
 TEST(XML_PARSER_BASIC, ErrorFindChildGibberish) {
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "Gibberish"), message);
 }
@@ -51,8 +57,8 @@ TEST(XML_PARSER_BASIC, ErrorFindChildPartialEnd) {
 TEST(XML_PARSER_BASIC, FindChildFirstIsPartialMatch) {
   TEST_IGNORE();
   strcpy(xml_tag_string, "<NODE_0><ODE_0></ODE_0></NODE_0>");
-  TEST_ASSERT_EQUAL_MESSAGE(0, XML_Node::createNode(xmlNodeFound, xml_tag_string), "Return status");
-  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(0, XML_Node::createNode(xmlNodeFound, xml_tag_string), "createNode return status");
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findChild(xmlNodeFound, "ODE_0"), "findChild return status");
 }
 
 TEST(XML_PARSER_BASIC, IndexAfterMatch) {
@@ -73,15 +79,37 @@ TEST(XML_PARSER_BASIC, NextNode) {
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "</NODE_0_0>"), xmlNodeFound.getStart(), "Index position");
 }
 
+TEST(XML_PARSER_BASIC, GetInnerXML) {
+  int start = -1, length = -1;
+  xmlNode.getInnerXML(start, length);
+
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "<NODE_0>"), start, "Start position");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAtMatch(xml_string, "</NODE_0>") - indexAfterMatch(xml_string, "<NODE_0>"), length, "Length");
+}
+
+TEST(XML_PARSER_BASIC, GetInnerXML_SelfClosing) {
+  int start = -1, length = -1;
+  int status = xmlNode.findChild(xmlNodeFound, "NODE_0_1_0");
+  TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
+
+  xmlNodeFound.getInnerXML(start, length);
+
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, "<NODE_0_1_0/>"), start, "Start position");
+  TEST_ASSERT_EQUAL_MESSAGE(0, length, "Length");
+}
+
 TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, CreateNode);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorCreateNodeMismatchingTags);
   RUN_TEST_CASE(XML_PARSER_BASIC, ConstructorString);
   RUN_TEST_CASE(XML_PARSER_BASIC, IndexAfterMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, FirstChild);
+  RUN_TEST_CASE(XML_PARSER_BASIC, FindChild);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildGibberish);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialStart);
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialEnd);
   RUN_TEST_CASE(XML_PARSER_BASIC, FindChildFirstIsPartialMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, NextNode);
+  RUN_TEST_CASE(XML_PARSER_BASIC, GetInnerXML);
+  RUN_TEST_CASE(XML_PARSER_BASIC, GetInnerXML_SelfClosing);
 }

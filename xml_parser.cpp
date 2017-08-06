@@ -129,6 +129,23 @@ int XML_Node::findChild(XML_Node &outNode, const char *childName) {
   }
 }
 
+void XML_Node::getInnerXML(int &start, int &length) {
+  int parseEnd;
+  XML_Node::E_TAG_TYPE tagType;
+  parseTag(this->getStartPtr(), parseEnd, tagType);
+
+  start = this->getStart() + parseEnd;
+
+  if (tagType == SELF_CLOSING) {
+    length = 0;
+  } else {
+    length = this->getLength()-parseEnd-1;
+    while (this->getStartPtr()[parseEnd+length] != '<' && length >= 0) {
+      length--;
+    }
+  }
+}
+
 int XML_Node::parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
   if (xmlTagStart[0] != '<') {
     tagType = ERROR_ILLEGAL_START_POS;
