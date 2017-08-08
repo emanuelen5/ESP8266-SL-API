@@ -10,7 +10,7 @@ TEST_GROUP(XML_PARSER_PRIVATE);
 TEST_SETUP(XML_PARSER_PRIVATE) {
   xmlNode = XML_Node_Test(xml_string);
   xmlNodeFound = XML_Node_Test();
-  xmlNode = XML_Node_Test(xml_string, indexAtMatch(xml_string, "<NODE_0_0>"), indexAfterMatch(xml_string, "</NODE_0_0>")-1);
+  xmlNode = XML_Node_Test(xml_string, indexAtMatch(xml_string, (char*)"<NODE_0_0>"), indexAfterMatch(xml_string, (char*)"</NODE_0_0>")-1);
 }
 
 TEST_TEAR_DOWN(XML_PARSER_PRIVATE) {

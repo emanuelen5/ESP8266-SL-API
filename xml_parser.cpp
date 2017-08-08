@@ -4,7 +4,7 @@
 
 #define ASCII_TO_LOWERCASE(c)    (((c) >= 'A') && ((c) <= 'Z'))?(c) - ('A' - 'a'):(c)
 
-int categorizeXMLNameCharacter(const char c) {
+int categorizeXMLNameCharacter(char c) {
   // Legal starting XML characters
   if (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
     return 1;
@@ -97,7 +97,7 @@ int XML_Node::findFirstChild(XML_Node &outNode) {
   outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
 }
 
-int XML_Node::findChild(XML_Node &outNode, const char *childName) {
+int XML_Node::findChild(XML_Node &outNode, char *childName) {
   // Check that the tag name is legal
   int childNameLength;
   int status = parseTagName(childName, childNameLength, false);
@@ -157,7 +157,7 @@ void XML_Node::print() {
   fwrite(this->getStartPtr(), sizeof(char), this->getLength(), stdout);
 }
 
-int XML_Node::parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
+int XML_Node::parseTag(char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
   if (xmlTagStart[0] != '<') {
     tagType = ERROR_ILLEGAL_START_POS;
     parseEnd = 0;
@@ -218,7 +218,7 @@ int XML_Node::parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_
   return 0;
 }
 
-int XML_Node::parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/, bool allowSubspace /*=true*/) {
+int XML_Node::parseTagName(char *xmlTagNameStart, int &parseEnd, bool checkIsXML /*= true*/, bool allowSubspace /*=true*/) {
   parseEnd = 0;
   if (categorizeXMLNameCharacter(xmlTagNameStart[parseEnd]) != 1) {
     return -1;
@@ -252,7 +252,7 @@ int XML_Node::parseTagName(const char *xmlTagNameStart, int &parseEnd, bool chec
   return 0;
 }
 
-int XML_Node::parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
+int XML_Node::parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
   int parseAttributeEnd, status;
   parseEnd = 0;
   // The name of the attribute follows the same naming convention as the tag name
@@ -277,7 +277,7 @@ int XML_Node::parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd)
   return 0;
 }
 
-int XML_Node::parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c) {
+int XML_Node::parseUntilCharacter(char *xmlStart, int &parseEnd, char c) {
   char *ptr = strchr(xmlStart, c);
   if (ptr == NULL) {
     parseEnd = strlen(xmlStart);
@@ -288,7 +288,7 @@ int XML_Node::parseUntilCharacter(const char *xmlStart, int &parseEnd, const cha
   }
 }
 
-int XML_Node::parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c) {
+int XML_Node::parseUntilUnescapedCharacter(char *xmlStart, int &parseEnd, char c) {
   int parseAttributeEnd;
   int status = parseUntilCharacter(xmlStart, parseAttributeEnd, c);
   parseEnd = parseAttributeEnd;

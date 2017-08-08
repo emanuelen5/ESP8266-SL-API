@@ -68,7 +68,7 @@ TEST(OFFLINE_XML_FILES, CanParseFilesAsXML) {
 #define STATUS_IS_ZERO(NAME) statusIsZero(xmlNode_##NAME)
 void statusIsZero(XML_Node &xmlNode) {
   int status;
-  status = xmlNode.findChild(xmlNodeFound, "StatusCode");
+  status = xmlNode.findChild(xmlNodeFound, (char*)"StatusCode");
   TEST_ASSERT_EQUAL(0, status);
   TEST_ASSERT_EQUAL_MESSAGE(121, xmlNodeFound.getStart(), "Start position");
   TEST_ASSERT_EQUAL_MESSAGE(146, xmlNodeFound.getEnd(), "End position");

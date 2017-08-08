@@ -33,7 +33,7 @@ class XML_Node {
      * @param[in]   childName  Input string
      * @return      Status (0 if found, non-zero for failure)
      */
-    int findChild(XML_Node &outNode, const char *childName);
+    int findChild(XML_Node &outNode,  char *childName);
     int findNextNode(XML_Node &outNode);
     int findFirstChild(XML_Node &outNode);
     /**
@@ -67,11 +67,11 @@ class XML_Node {
      * @param  tagType      Type of tag that was parsed
      * @return              Status, non-zero if error
      */
-    static int parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType);
-    static int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true);
-    static int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd);
-    static int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c);
-    static int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c);
+    static int parseTag( char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType);
+    static int parseTagName( char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true);
+    static int parseTagAttribute( char *xmlTagAttributeStart, int &parseEnd);
+    static int parseUntilCharacter( char *xmlStart, int &parseEnd,  char c);
+    static int parseUntilUnescapedCharacter( char *xmlStart, int &parseEnd,  char c);
 };
 
 #endif //_XML_PARSER_H_

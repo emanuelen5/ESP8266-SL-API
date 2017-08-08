@@ -4,8 +4,8 @@
 /**
  * Find the index after a match of a strstr match
  */
-int indexAfterMatch(const char *haystack, const char *needle);
-int indexAtMatch(const char *haystack, const char *needle);
+int indexAfterMatch(char *haystack, char *needle);
+int indexAtMatch(char *haystack, char *needle);
 
 /**
  * Test class to expose private methods/functions
@@ -20,19 +20,19 @@ class XML_Node_Test : public XML_Node {
     char *string;
     int start, end;
 
-    static int parseTag(const char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
+    static int parseTag(char *xmlTagStart, int &parseEnd, enum XML_Node::E_TAG_TYPE &tagType) {
       return XML_Node::parseTag(xmlTagStart, parseEnd, tagType);
     };
-    static int parseTagName(const char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true) {
+    static int parseTagName(char *xmlTagNameStart, int &parseEnd, bool checkXML = true, bool allowSubspace = true) {
       return XML_Node::parseTagName(xmlTagNameStart, parseEnd, checkXML, allowSubspace);
     };
-    static int parseTagAttribute(const char *xmlTagAttributeStart, int &parseEnd) {
+    static int parseTagAttribute(char *xmlTagAttributeStart, int &parseEnd) {
       return XML_Node::parseTagAttribute(xmlTagAttributeStart, parseEnd);
     };
-    static int parseUntilCharacter(const char *xmlStart, int &parseEnd, const char c) {
+    static int parseUntilCharacter(char *xmlStart, int &parseEnd, char c) {
       return XML_Node::parseUntilCharacter(xmlStart, parseEnd, c);
     };
-    static int parseUntilUnescapedCharacter(const char *xmlStart, int &parseEnd, const char c) {
+    static int parseUntilUnescapedCharacter(char *xmlStart, int &parseEnd, char c) {
       return XML_Node::parseUntilUnescapedCharacter(xmlStart, parseEnd, c);
     };
 };

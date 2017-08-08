@@ -21,7 +21,7 @@ int parseEnd, status;
 enum XML_Node_Test::E_TAG_TYPE tagType;
 char xml_tag_string[];
 
-int indexAfterMatch(const char *haystack, const char *needle) {
+int indexAfterMatch(char *haystack, char *needle) {
   int matchPos = strstr(haystack, needle) - haystack;
   if (matchPos >= 0 and matchPos < (signed)(strlen(haystack) - strlen(needle))) {
     matchPos += strlen(needle);
@@ -29,7 +29,7 @@ int indexAfterMatch(const char *haystack, const char *needle) {
   return matchPos;
 }
 
-int indexAtMatch(const char *haystack, const char *needle) {
+int indexAtMatch(char *haystack, char *needle) {
   int matchPos = strstr(haystack, needle) - haystack;
   return matchPos;
 }

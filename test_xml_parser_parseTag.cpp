@@ -64,7 +64,7 @@ TEST(XML_PARSER_PARSE_TAG, Name) {
   strcpy(xml_tag_string, "Value/>");
   status = XML_Node_Test::parseTagName(xml_tag_string, parseEnd);
   TEST_ASSERT_EQUAL_MESSAGE(0, status, "Return status");
-  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_tag_string, "Value"), parseEnd, "Parse end");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_tag_string, (char*)"Value"), parseEnd, "Parse end");
 }
 
 TEST(XML_PARSER_PARSE_TAG, NameSubspace) {
