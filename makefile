@@ -1,5 +1,6 @@
-CC=gcc
-CFLAGS=-Wall -std=c99
+CC=g++
+CFLAGS=-Wall
+LDFLAGS=-Wall
 
 ifeq ($(OS),Windows_NT)
 	EXE_EXT=exe
@@ -15,7 +16,7 @@ INCLUDE_PATH=include
 # %.o: 
 	# Fix: Otherwise, test.o etc. matches the rule below
 	# @echo "Strange, $@ triggered this rule"
-$(BUILD_PATH)/%.o: %.c
+$(BUILD_PATH)/%.o: %.cpp
 	@echo "Compiling dependency"
 	$(CC) $(CFLAGS) -o $@ $< $(TDD_INCL) -c
 
@@ -39,27 +40,30 @@ XML_LIBRARY_OBJS=$(BUILD_PATH)/xml_parser.o
 $(DEV_EXE): $(DEV_EXE_OBJS) $(XML_LIBRARY_OBJS)
 	@echo ""
 	@echo "Linking main executable"
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 	@echo ""
 
 
 ## Development tests executable ##
 DEV_TEST_EXE=$(BUILD_PATH)/test_runner.$(EXE_EXT)
-DEVELOPMENT_OBJS=$(BUILD_PATH)/dev_test_suite.o $(BUILD_PATH)/test_xml_parser.o $(BUILD_PATH)/test_xml_parser_basic.o
+DEVELOPMENT_OBJS=$(addprefix $(BUILD_PATH)/, dev_test_suite.o test_xml_parser_offline.o test_xml_parser_basic.o test_xml_parser_parseTag.o test_common.o test_xml_parser_private.o)
 DEV_TEST_DEPS=$(TDD_OBJS) $(XML_LIBRARY_OBJS) $(DEVELOPMENT_OBJS)
 $(DEV_TEST_EXE): $(DEV_TEST_DEPS)
 	@echo ""
 	@echo "Linking development tests"
-	$(CC) $(CFLAGS) -o $@ $^ $(TDD_INCL)
+	$(CC) $(LDFLAGS) -o $@ $^ $(TDD_INCL)
 	@echo ""
-	@$(MAKE) --no-print-directory test
 
 
-## Run test ##
-test: $(DEV_TEST_EXE)
-	@echo ""
-	@echo "Running tests"
-	@- ./$(DEV_TEST_EXE)
+## Dependencies from preprocessor inclusions ##
+# xml_parser files
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/test_common.o: xml_parser.hpp
+# tests
+$(DEVELOPMENT_OBJS) $(BUILD_PATH)/test_common.o: test_common.hpp
+# unity
+$(BUILD_PATH)/unity.o: $(INCLUDE_PATH)/unity/*.h
+# unity.h must be added as dependency as it is implicitly included by unity_fixture.h
+$(BUILD_PATH)/xml_parser.o $(DEVELOPMENT_OBJS) $(BUILD_PATH)/unity_fixture.o $(BUILD_PATH)/test_common.o: $(INCLUDE_PATH)/unity_fixture/unity_fixture.h $(INCLUDE_PATH)/unity/unity.h
 
 
 ## Readme ##
@@ -70,17 +74,24 @@ $(README_OUT): readme.md
 	@echo "Generating readme"
 	$(MARKDOWN) $< > $@
 
+
 $(BUILD_PATH):
+	@echo "Creating output directory"
 	@mkdir $(BUILD_PATH)
 
-## Miscellaneous ##
+
+## Miscellaneous PHONY targets ##
 .DEFAULT_GOAL=all
 .PHONY=all clean test readme arduino_verify arduino_upload
-all: $(DEV_EXE) $(DEV_TEST_EXE) $(README_OUT)
+all: $(BUILD_PATH) $(README_OUT) $(DEV_EXE) test
 clean:
 	@rm -vf $(XML_LIBRARY_OBJS) $(DEV_TEST_DEPS) $(DEV_EXE_OBJS) $(README_OUT) $(DEV_EXE) $(DEV_TEST_EXE)
 	$(MAKE_ARDUINO) clean
 readme: $(README_OUT)
+test: $(DEV_TEST_EXE)
+	@echo ""
+	@echo "Running development tests"
+	@- ./$(DEV_TEST_EXE)
 
 # Submake for Arduino sketch
 MAKE_ARDUINO=$(MAKE) --no-print-directory -C arduino_app -f arduino.mk
