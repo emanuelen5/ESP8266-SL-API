@@ -46,4 +46,7 @@ extern enum XML_Node_Test::E_TAG_TYPE tagType;
 #define TAG_LENGTH_MAX 50
 extern char xml_tag_string[TAG_LENGTH_MAX];
 
+// If a precondition is not satisfied, then a dependency has failed instead. Can be used for focusing test cases.
+#define ASSERT_DEPENDENT_PRECONDITION(b) if ((b)) TEST_IGNORE();
+
 #endif //_TEST_COMMON_H_

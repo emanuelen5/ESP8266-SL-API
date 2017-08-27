@@ -35,6 +35,7 @@ class XML_Node {
      */
     int findChild(XML_Node &outNode,  char *childName);
     int findNextNode(XML_Node &outNode);
+    int findPreviousNode(XML_Node &outNode);
     int findFirstChild(XML_Node &outNode);
     /**
      * Returns the start and length of the name in the string

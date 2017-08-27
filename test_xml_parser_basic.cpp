@@ -78,10 +78,27 @@ TEST(XML_PARSER_BASIC, FirstChild) {
 }
 
 TEST(XML_PARSER_BASIC, NextNode) {
-  TEST_IGNORE();
-  xmlNode.findFirstChild(xmlNode);
+  ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_0"));
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findNextNode(xmlNodeFound), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"</NODE_0_0>"), xmlNodeFound.getStart(), "Index position");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"</NODE_0_1>")-1, xmlNodeFound.getEnd(), "End position");
+}
+
+TEST(XML_PARSER_BASIC, ErrorNoNextNode) {
+  ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_1"));
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findNextNode(xmlNodeFound), "Did not expect 0 return status");
+}
+
+TEST(XML_PARSER_BASIC, PreviousNode) {
+  ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_1"));
+  TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findPreviousNode(xmlNodeFound), "Return status");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAtMatch(xml_string, (char*)"<NODE_0>"), xmlNodeFound.getStart(), "Start position");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"</NODE_0_0>")-1, xmlNodeFound.getEnd(), "End position");
+}
+
+TEST(XML_PARSER_BASIC, ErrorNoPreviousNode) {
+  ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_1"));
+  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findPreviousNode(xmlNodeFound), "Did not expect 0 return status");
 }
 
 TEST(XML_PARSER_BASIC, GetInnerXML) {
@@ -116,6 +133,9 @@ TEST_GROUP_RUNNER(XML_PARSER_BASIC) {
   RUN_TEST_CASE(XML_PARSER_BASIC, ErrorFindChildPartialEnd);
   RUN_TEST_CASE(XML_PARSER_BASIC, FindChildFirstIsPartialMatch);
   RUN_TEST_CASE(XML_PARSER_BASIC, NextNode);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorNoNextNode);
+  RUN_TEST_CASE(XML_PARSER_BASIC, PreviousNode);
+  RUN_TEST_CASE(XML_PARSER_BASIC, ErrorNoPreviousNode);
   RUN_TEST_CASE(XML_PARSER_BASIC, GetInnerXML);
   RUN_TEST_CASE(XML_PARSER_BASIC, GetInnerXML_SelfClosing);
 }

@@ -92,6 +92,11 @@ int XML_Node::findNextNode(XML_Node &outNode) {
   outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
 }
 
+int XML_Node::findPreviousNode(XML_Node &outNode) {
+  return 0;
+  outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
+}
+
 int XML_Node::findFirstChild(XML_Node &outNode) {
   return 0;
   outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
