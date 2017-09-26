@@ -72,7 +72,6 @@ TEST(XML_PARSER_BASIC, IndexAfterMatch) {
 }
 
 TEST(XML_PARSER_BASIC, FirstChild) {
-  TEST_IGNORE();
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findFirstChild(xmlNodeFound), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"<NODE_0>"), xmlNodeFound.getStart(), "Index position");
 }
@@ -81,7 +80,6 @@ TEST(XML_PARSER_BASIC, NextNode) {
   ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_0"));
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findNextNode(xmlNodeFound), "Return status");
   TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"</NODE_0_0>"), xmlNodeFound.getStart(), "Index position");
-  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"</NODE_0_1>")-1, xmlNodeFound.getEnd(), "End position");
 }
 
 TEST(XML_PARSER_BASIC, ErrorNoNextNode) {
@@ -92,12 +90,11 @@ TEST(XML_PARSER_BASIC, ErrorNoNextNode) {
 TEST(XML_PARSER_BASIC, PreviousNode) {
   ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_1"));
   TEST_ASSERT_EQUAL_MESSAGE(0, xmlNode.findPreviousNode(xmlNodeFound), "Return status");
-  TEST_ASSERT_EQUAL_MESSAGE(indexAtMatch(xml_string, (char*)"<NODE_0>"), xmlNodeFound.getStart(), "Start position");
-  TEST_ASSERT_EQUAL_MESSAGE(indexAfterMatch(xml_string, (char*)"</NODE_0_0>")-1, xmlNodeFound.getEnd(), "End position");
+  TEST_ASSERT_EQUAL_MESSAGE(indexAtMatch(xml_string, (char*)"<NODE_0_0>"), xmlNodeFound.getStart(), "Start position");
 }
 
 TEST(XML_PARSER_BASIC, ErrorNoPreviousNode) {
-  ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_1"));
+  ASSERT_DEPENDENT_PRECONDITION(xmlNode.findChild(xmlNode, (char*)"NODE_0_0"));
   TEST_ASSERT_NOT_EQUAL_MESSAGE(0, xmlNode.findPreviousNode(xmlNodeFound), "Did not expect 0 return status");
 }
 

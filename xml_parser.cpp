@@ -88,18 +88,54 @@ int XML_Node::createNode(XML_Node &outNode, char *string, int start /*=0*/) {
 }
 
 int XML_Node::findNextNode(XML_Node &outNode) {
+  int status = 0, parseEnd;
+  status = parseUntilCharacter(this->getEndPtr(), parseEnd, '<');
+  if (status) return -1;
+  status = XML_Node::createNode(outNode, this->getString(), this->getEnd()+parseEnd);
+  if (status) return -2;
   return 0;
-  outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
 }
 
 int XML_Node::findPreviousNode(XML_Node &outNode) {
+  int previousStart = this->getStart()-1;
+  int depth = 0, status, parseEnd;
+
+  do {
+    while (this->getString()[previousStart] != '<' && previousStart >= 0) {
+      previousStart--;
+    }
+    if (this->getString()[previousStart] == '<') {
+      E_TAG_TYPE tagType = ERROR_UNDEFINED;
+      status = parseTag(this->getString() + previousStart, parseEnd, tagType);
+      if (status) return -1;
+      if (tagType == OPENING) {
+        depth--;
+      } else if (tagType == CLOSING) {
+        depth++;
+      }
+      previousStart--;
+    }
+  } while (previousStart >= 0 && depth > 0);
+  previousStart++;
+
+  if (depth != 0) return -2;
+  status = XML_Node::createNode(outNode, this->getString(), previousStart);
+  if (status) {
+    return -3;
+  }
   return 0;
-  outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
 }
 
 int XML_Node::findFirstChild(XML_Node &outNode) {
+  int status = 0, parseTagEnd, parseEnd;
+  E_TAG_TYPE tagType;
+  status = parseTag(this->getStartPtr(), parseTagEnd, tagType);
+  if (status) return -1;
+  status = parseUntilCharacter(this->getStartPtr()+parseTagEnd, parseEnd, '<');
+  if (status) return -2;
+  status = XML_Node::createNode(outNode, this->getString(), this->getStart()+parseTagEnd+parseEnd);
+  if (status) return -3;
   return 0;
-  outNode = XML_Node(this->getString(), this->getStart(), this->getEnd());
 }
 
 int XML_Node::findChild(XML_Node &outNode, char *childName) {
