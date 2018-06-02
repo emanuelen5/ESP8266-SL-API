@@ -87,13 +87,13 @@ all: $(BUILD_PATH) $(README_OUT) $(DEV_EXE) test
 clean:
 	@rm -vf $(XML_LIBRARY_OBJS) $(DEV_TEST_DEPS) $(DEV_EXE_OBJS) $(README_OUT) $(DEV_EXE) $(DEV_TEST_EXE)
 	$(MAKE_ARDUINO) clean
-readme: $(README_OUT)
-test: $(DEV_TEST_EXE)
+readme: $(BUILD_PATH) $(README_OUT)
+test: $(BUILD_PATH) $(DEV_TEST_EXE)
 	@echo ""
 	@echo "Running development tests"
 	@- ./$(DEV_TEST_EXE)
 
 # Submake for Arduino sketch
 MAKE_ARDUINO=$(MAKE) --no-print-directory -C arduino_app -f arduino.mk
-arduino_verify: $(XML_LIBRARY_OBJS) $(TDD_OBJS)
+arduino_verify: $(BUILD_PATH) $(XML_LIBRARY_OBJS) $(TDD_OBJS)
 	$(MAKE_ARDUINO) verify
