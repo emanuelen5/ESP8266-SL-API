@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/emanuelen5/ESP8266-SL-API.svg?branch=master)](https://travis-ci.org/emanuelen5/ESP8266-SL-API)
+
 # XML Parser for SL APP
 ## General description
 The purpose of this application is to get current data from the Trafiklab API and present the information on a display. The application will in the end run on a microcontroller in the ESP8266 class which has a TCP/IP stack and WiFi capabilities.
