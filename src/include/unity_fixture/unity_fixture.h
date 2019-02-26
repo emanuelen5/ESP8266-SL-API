@@ -8,6 +8,11 @@
 #ifndef UNITY_FIXTURE_H_
 #define UNITY_FIXTURE_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "unity.h"
 #include "unity_internals.h"
 #include "unity_fixture_malloc_overrides.h"
@@ -79,5 +84,10 @@ int UnityMain(int argc, const char* argv[], void (*runAllTests)(void));
 
 /* You must compile with malloc replacement, as defined in unity_fixture_malloc_overrides.h */
 void UnityMalloc_MakeMallocFailAfterCount(int count);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* UNITY_FIXTURE_H_ */
