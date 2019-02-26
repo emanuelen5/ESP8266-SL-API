@@ -29,8 +29,8 @@ static FILE *testCanOpenFile(const char *filepath) {
  * Test that all the offline files are present
  */
 TEST(OFFLINE_XML_FILES, FilesArePresent) {
-  fh_departure = testCanOpenFile("departure_lookup.xml");
-  fh_station   = testCanOpenFile("station_lookup.xml");
+  fh_departure = testCanOpenFile("data/departure_lookup.xml");
+  fh_station   = testCanOpenFile("data/station_lookup.xml");
 }
 
 /**
