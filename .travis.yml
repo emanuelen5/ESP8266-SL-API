@@ -1,4 +1,5 @@
 language: c++
 script:
   - cmake .
-  - make test_sl_api
+  - make
+  - ./test_sl_api
