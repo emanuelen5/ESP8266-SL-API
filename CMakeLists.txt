@@ -4,6 +4,12 @@ include_directories(src/include)
 file(GLOB SOURCES "src/*.cpp")
 add_executable(sl_api ${SOURCES})
 
+set(DATA_FOLDER "\"${PROJECT_SOURCE_DIR}/data/\"")
+configure_file (
+  "${PROJECT_SOURCE_DIR}/src/test/test_common.hpp.in"
+  "${PROJECT_SOURCE_DIR}/src/test/test_common.hpp"
+)
+
 project(test_sl_api)
 include_directories(src/include/unity)
 include_directories(src/include/unity_fixture)

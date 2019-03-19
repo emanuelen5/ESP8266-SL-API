@@ -1,6 +1,8 @@
 #ifndef _TEST_COMMON_H_
 #define _TEST_COMMON_H_
 
+#define DATA_FOLDER @DATA_FOLDER@
+
 /**
  * Find the index after a match of a strstr match
  */
